@@ -257,36 +257,20 @@ const Sidebar = ({ collapsed }) => {
   const menuConfig = {
     Admin: [
       { path: "/admin-dashboard", icon: "fa-solid fa-compass", text: "Dashboard" },
-      // { path: "/active-project", icon: "fa-solid fa-diagram-project", text: "Active Projects" },
       { path: "/task-management", icon: "fa-solid fa-tasks", text: "Task Management" },
-      // { path: "/project", icon: "fa-solid fa-diagram-project", text: "Projects" },
       { path: "/emailintegration", icon: "fa-solid fa-chart-line", text: " Email Integration" },
-
-      // { path: "/sourcework", icon: "fa-solid fa-chart-line", text: "Resource Workload" },
-      // { path: "/action-center", icon: "fa-solid fa-bolt", text: "Action Center" },
       { path: "/reportinganalytics", icon: "fa-solid fa-chart-line", text: "Reporting" },
-      // { path: "/auditlog", icon: "fa-solid fa-shield", text: "Audit Logs" },
-      // { path: "/attendance", icon: "fa-solid fa-calendar-days", text: "Attendance" },
-      // { path: "/shift-allocation", icon: "fa-solid fa-life-ring", text: "Shift Allocation" },
       { path: "/calendar", icon: "fa-solid fa-calendar", text: "Calendar View" },
       { path: "/usermanage", icon: "fa-solid fa-users-gear", text: "User Management" },
-      // { path: "/role-permission", icon: "fa-brands fa-critical-role", text: "Role & Permission" },
-      // { path: "/collaboration", icon: "fa-solid fa-comments", text: "Chat Room" },
       { path: "/notifications", icon: "fa-solid fa-chart-line", text: "Notifications & Alerts" },
     ],
     Staff: [
-      { path: "/manager-dashboard", icon: "fa-solid fa-compass", text: "Dashboard" },
-      // { path: "/assigned", icon: "fa-solid fa-address-card", text: "My Tasks" },
-      // { path: "/createproject", icon: "fa-solid fa-circle-plus", text: "Create Project" },
-      { path: "/managertask", icon: "fa-solid fa-bell", text: "My Task" },
-      { path: "/calendar", icon: "fa-solid fa-calendar", text: "Calendar View" },
+      { path: "/staff-dashboard", icon: "fa-solid fa-compass", text: "Dashboard" },
+      { path: "/my-task", icon: "fa-solid fa-bell", text: "My Task" },
+      { path: "/calendarview", icon: "fa-solid fa-calendar", text: "Calendar View" },
+      { path: "/reportsubmission", icon: "fa-solid fa-chart-line", text: "Report Submission" },
+      { path: "/notifications", icon: "fa-solid fa-chart-line", text: "Notifications" },
 
-      // { path: "/taskrequest", icon: "fa-solid fa-bell", text: "Task Requests" },
-      { path: "/shift-allocation", icon: "fa-solid fa-chart-line", text: "Report Submission" },
-      // { path: "/sourcework", icon: "fa-solid fa-chart-line", text: "Resource Workload" },
-      // { path: "/collaboration", icon: "fa-solid fa-comments", text: "Chat Room" },
-      { path: "/taskrequest", icon: "fa-solid fa-chart-line", text: "Notifications" },
-      // { path: "/settingpage", icon: "fa-solid fa-gear", text: "Setting" },
     ]
   };
 

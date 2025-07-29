@@ -22,14 +22,11 @@ import FileManagementSystem from "./components/AdminDashboard/FileManagementSyst
 import TaskDashboard from "./components/TeamMember/Taskmanagementdashboard/TaskDashboard";
 import Messages from "./components/TeamMember/Messages/Messages";
 import ActivitySummary from "./components/TeamMember/Activity/ActivitySummary";
-import ManagerDashboard from "./components/ProjectManager/ManagerDashboard/ManagerDashboard";
-import CreateProject from "./components/ProjectManager/CreateProject/CreateProject";
+
+
 import Attendance from "./components/TeamMember/Attendance/Attendance";
 import Productivity from "./components/TeamMember/Productivity/Productivity";
-import TaskRequest from "./components/ProjectManager/TaskRequest/TaskRequest";
-import ResourceWorkload from "./components/ProjectManager/ResourceWorkload/ResourceWorkload";
-import Collaboration from "./components/ProjectManager/Collaboration/Collaboration";
-import Assigned from "./components/ProjectManager/Assigne/Assigned";
+
 import Task from "./components/TeamMember/Task/Task";
 import ChangesPassword from "./components/AdminDashboard/ChangePassword/ChangesPassword";
 import RoleManagementSystem from "./components/AdminDashboard/Role&Permission/Role&PErmission";
@@ -38,11 +35,16 @@ import Calander from "./components/AdminDashboard/Calander/Calander";
 import ActionCenter from "./components/AdminDashboard/ActionCenter/ActionCenter";
 import AuthLayout from "./layout/authLayout";
 import MainLayout from "./layout/MainLayout";
-import ManagerTask from "./components/ProjectManager/ManagerTask/ManagerTask";
-import ShiftAllocation from "./components/ProjectManager/ShiftAllocation/ShiftAllocation";
 import EmailIntegration from "./components/AdminDashboard/EmailIntegration/EmailIntegration";
 import Dashboard from "./components/AdminDashboard/AdminDashboard/Dashboard";
 import Notifications from "./components/AdminDashboard/Notifications/Notifications";
+import StaffDashboard from "./components/StaffDashboard/Dashboard/StaffDashboard";
+import MyTasks from "./components/StaffDashboard/Mytask/MyTasks";
+import CalendarView from "./components/StaffDashboard/Calendar/CalendarView";
+import ManualReportSubmission from "./components/StaffDashboard/ReportSubmission/ManualReportSubmission";
+import NotificationsPage from "./components/StaffDashboard/Notification/NotificationsPage";
+
+
 
 function App() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -78,8 +80,8 @@ function App() {
         <Route path="/admin-dashboard" element={<Dashboard />} />
         <Route path="/calendar" element={<Calander />} />
         <Route path="/attendance" element={<Attendance />} />
-   <Route path="/emailintegration" element={<EmailIntegration />} />
-    <Route path="/notifications" element={<Notifications />} />
+        <Route path="/emailintegration" element={<EmailIntegration />} />
+        <Route path="/notifications" element={<Notifications />} />
         <Route path="/task-management" element={<TaskManagement />} />
         <Route path="/calendar" element={<Calander />} />
         <Route path="/usermanage" element={<UserManagement />} />
@@ -114,24 +116,18 @@ function App() {
 
         {/* Add your other routes here */}
 
-        {/*manager project */}
-
-        <Route path="/staff-dashboard" element={<ManagerDashboard />} />
-        <Route path="/createproject" element={<CreateProject />} />
-        <Route path="/attendance" element={<Attendance />} />
-        <Route path="/assigned" element={<Assigned />} />
-        <Route path="/managertask" element={<ManagerTask />} />
-        <Route path="/shift-allocation" element={<ShiftAllocation />} />
-
-        <Route path="/taskrequest" element={<TaskRequest />} />
-        <Route path="/sourcework" element={<ResourceWorkload />} />
-        <Route path="/collaboration" element={<Collaboration />} />
+        {/*staff dashbaord  project */}
+        <Route path="/staff-dashboard" element={<StaffDashboard />} />
+        <Route path="/my-task" element={<MyTasks />} />
+        <Route path="/calendarview" element={<CalendarView />} />
+        <Route path="/reportsubmission" element={<ManualReportSubmission />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
 
         {/* <Route path="/task" element={<Task/>} /> */}
 
         {/* productivity */}
 
-        <Route path="/productivity" element={<Productivity />} /> 
+        <Route path="/productivity" element={<Productivity />} />
       </Route>
 
       {/* Fallback Route */}
