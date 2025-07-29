@@ -1,164 +1,318 @@
-import React, { useState } from "react";
+// import React, { useState } from "react";
+// import { useNavigate, useLocation } from "react-router-dom";
+// import "./Sidebar.css";
+
+// const Sidebar = ({ collapsed }) => {
+//   const [openSubmenu, setOpenSubmenu] = useState(null);
+//   const navigate = useNavigate();
+//   const location = useLocation();
+//   const role = localStorage.getItem("userRole"); // ✅ GET ROLE from localStorage
+
+//   const toggleSubmenu = (menuName) => {
+//     setOpenSubmenu((prev) => (prev === menuName ? null : menuName));
+//   };
+
+//   const isActive = (path) => location.pathname === path;
+
+//   const menuItemClick = () => {
+//     console.log("Menu item clicked");
+//   };
+
+//   return (
+//     <div className={`sidebar-container ${collapsed ? "collapsed" : ""}`}>
+//       <div className="sidebar bg-card " style={{ height: "105vh" }}>
+//         <ul className="menu">
+//           {/* Admin Dashboard Menu */}
+//           {role === "Admin" && (
+//             <>
+//               <li
+//                 className={`menu-item ${isActive("/admin-dashboard") ? "active" : ""
+//                   }`}
+//               >
+//                 <div
+//                   className="menu-link menu-i"
+//                   onClick={() => {
+//                     navigate("/admin-dashboard");
+//                     menuItemClick();
+//                   }}
+//                 >
+//                   <i className="fa-solid fa-compass"></i>
+//                   <span className="menu-text">Dashboard</span>
+//                 </div>
+//               </li>
+              
+//               <li
+//                 className={`menu-item ${isActive("/task-management") ? "active" : ""
+//                   }`}
+//               >
+//                 <div
+//                   className="menu-link menu-i"
+//                   onClick={() => {
+//                     navigate("/task-management");
+//                     menuItemClick();
+//                   }}
+//                 >
+//                   <i className="fa-solid fa-tasks"></i>
+//                   <span className="menu-text">Task Management</span>
+//                 </div>
+//               </li>
+              
+//               <li
+//                 className={`menu-item ${isActive("/email-integration") ? "active" : ""
+//                   }`}
+//               >
+//                 <div
+//                   className="menu-link menu-i"
+//                   onClick={() => {
+//                     navigate("/email-integration");
+//                     menuItemClick();
+//                   }}
+//                 >
+//                   <i className="fa-solid fa-envelope"></i>
+//                   <span className="menu-text">Email Integration</span>
+//                 </div>
+//               </li>
+              
+//               <li
+//                 className={`menu-item ${isActive("/calendar") ? "active" : ""}`}
+//               >
+//                 <div
+//                   className="menu-link menu-i"
+//                   onClick={() => {
+//                     navigate("/calendar");
+//                     menuItemClick();
+//                   }}
+//                 >
+//                   <i className="fa-solid fa-calendar"></i>
+//                   <span className="menu-text">Calendar View</span>
+//                 </div>
+//               </li>
+              
+//               <li
+//                 className={`menu-item ${isActive("/reports") ? "active" : ""}`}
+//               >
+//                 <div
+//                   className="menu-link menu-i"
+//                   onClick={() => {
+//                     navigate("/reports");
+//                     menuItemClick();
+//                   }}
+//                 >
+//                   <i className="fa-solid fa-chart-line"></i>
+//                   <span className="menu-text">Reports</span>
+//                 </div>
+//               </li>
+              
+//               <li
+//                 className={`menu-item ${isActive("/usermanage") ? "active" : ""
+//                   }`}
+//               >
+//                 <div
+//                   className="menu-link menu-i"
+//                   onClick={() => {
+//                     navigate("/usermanage");
+//                     menuItemClick();
+//                   }}
+//                 >
+//                   <i className="fa-solid fa-users-gear"></i>
+//                   <span className="menu-text">User Management</span>
+//                 </div>
+//               </li>
+              
+//               <li
+//                 className={`menu-item ${isActive("/notifications") ? "active" : ""
+//                   }`}
+//               >
+//                 <div
+//                   className="menu-link menu-i"
+//                   onClick={() => {
+//                     navigate("/notifications");
+//                     menuItemClick();
+//                   }}
+//                 >
+//                   <i className="fa-solid fa-bell"></i>
+//                   <span className="menu-text">Notifications & Alerts</span>
+//                 </div>
+//               </li>
+//             </>
+//           )}
+
+//           {/* Staff Dashboard Menu */}
+//           {role === "Staff" && (
+//             <>
+//               <li
+//                 className={`menu-item ${isActive("/staff-dashboard") ? "active" : ""
+//                   }`}
+//               >
+//                 <div
+//                   className="menu-link menu-i"
+//                   onClick={() => {
+//                     navigate("/staff-dashboard");
+//                     menuItemClick();
+//                   }}
+//                 >
+//                   <i className="fa-solid fa-compass"></i>
+//                   <span className="menu-text">Dashboard</span>
+//                 </div>
+//               </li>
+              
+//               <li
+//                 className={`menu-item ${isActive("/my-tasks") ? "active" : ""}`}
+//               >
+//                 <div
+//                   className="menu-link menu-i"
+//                   onClick={() => {
+//                     navigate("/my-tasks");
+//                     menuItemClick();
+//                   }}
+//                 >
+//                   <i className="fa-solid fa-tasks"></i>
+//                   <span className="menu-text">My Tasks</span>
+//                 </div>
+//               </li>
+              
+//               <li
+//                 className={`menu-item ${isActive("/calendar") ? "active" : ""}`}
+//               >
+//                 <div
+//                   className="menu-link menu-i"
+//                   onClick={() => {
+//                     navigate("/calendar");
+//                     menuItemClick();
+//                   }}
+//                 >
+//                   <i className="fa-solid fa-calendar"></i>
+//                   <span className="menu-text">Calendar View</span>
+//                 </div>
+//               </li>
+              
+//               <li
+//                 className={`menu-item ${isActive("/report-submission") ? "active" : ""
+//                   }`}
+//               >
+//                 <div
+//                   className="menu-link menu-i"
+//                   onClick={() => {
+//                     navigate("/report-submission");
+//                     menuItemClick();
+//                   }}
+//                 >
+//                   <i className="fa-solid fa-file-upload"></i>
+//                   <span className="menu-text">Report Submission</span>
+//                 </div>
+//               </li>
+              
+//               <li
+//                 className={`menu-item ${isActive("/notifications") ? "active" : ""
+//                   }`}
+//               >
+//                 <div
+//                   className="menu-link menu-i"
+//                   onClick={() => {
+//                     navigate("/notifications");
+//                     menuItemClick();
+//                   }}
+//                 >
+//                   <i className="fa-solid fa-bell"></i>
+//                   <span className="menu-text">Notifications</span>
+//                 </div>
+//               </li>
+//             </>
+//           )}
+//         </ul>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Sidebar;
+
+
+
+
+
+
+
+
+
+
+
+import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./Sidebar.css";
 
 const Sidebar = ({ collapsed }) => {
-  const [openSubmenu, setOpenSubmenu] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const role = localStorage.getItem("userRole"); // ✅ GET ROLE
+  const role = localStorage.getItem("userRole");
 
   const toggleSubmenu = (menuName) => {
     setOpenSubmenu((prev) => (prev === menuName ? null : menuName));
   };
 
   const isActive = (path) => location.pathname === path;
+  const menuItemClick = () => console.log("Menu item clicked");
 
-  const menuItemClick = () => {
-    console.log("Menu item clicked");
-  };
+  // Centralized menu configuration
+  const menuConfig = {
+    Admin: [
+      { path: "/admin-dashboard", icon: "fa-solid fa-compass", text: "Dashboard" },
+      // { path: "/active-project", icon: "fa-solid fa-diagram-project", text: "Active Projects" },
+      { path: "/task-management", icon: "fa-solid fa-tasks", text: "Task Management" },
+      // { path: "/project", icon: "fa-solid fa-diagram-project", text: "Projects" },
+      { path: "/emailintegration", icon: "fa-solid fa-chart-line", text: " Email Integration" },
+     
+      // { path: "/sourcework", icon: "fa-solid fa-chart-line", text: "Resource Workload" },
+      // { path: "/action-center", icon: "fa-solid fa-bolt", text: "Action Center" },
+      { path: "/reportinganalytics", icon: "fa-solid fa-chart-line", text: "Reporting" },
+      // { path: "/auditlog", icon: "fa-solid fa-shield", text: "Audit Logs" },
+      { path: "/attendance", icon: "fa-solid fa-calendar-days", text: "Attendance" },
+      { path: "/shift-allocation", icon: "fa-solid fa-life-ring", text: "Shift Allocation" },
+      { path: "/calendar", icon: "fa-solid fa-calendar", text: "Calendar View" },
+      { path: "/usermanage", icon: "fa-solid fa-users-gear", text: "User Management" },
+      // { path: "/role-permission", icon: "fa-brands fa-critical-role", text: "Role & Permission" },
+      // { path: "/collaboration", icon: "fa-solid fa-comments", text: "Chat Room" },
+       { path: "/notificationalerts", icon: "fa-solid fa-chart-line", text: "Notifications & Alerts" },
+    ],
+    Staff: [
+      { path: "/manager-dashboard", icon: "fa-solid fa-compass", text: "Dashboard" },
+      // { path: "/assigned", icon: "fa-solid fa-address-card", text: "My Tasks" },
+      // { path: "/createproject", icon: "fa-solid fa-circle-plus", text: "Create Project" },
+      { path: "/managertask", icon: "fa-solid fa-bell", text: "My Task" },
+      { path: "/calendar", icon: "fa-solid fa-calendar", text: "Calendar View" },
+
+      // { path: "/taskrequest", icon: "fa-solid fa-bell", text: "Task Requests" },
+      { path: "/shift-allocation", icon: "fa-solid fa-chart-line", text: "Report Submission" },
+      // { path: "/sourcework", icon: "fa-solid fa-chart-line", text: "Resource Workload" },
+      // { path: "/collaboration", icon: "fa-solid fa-comments", text: "Chat Room" },
+       { path: "/taskrequest", icon: "fa-solid fa-chart-line", text: "Notifications" },
+      { path: "/settingpage", icon: "fa-solid fa-gear", text: "Setting" },
+  ]
+};
+
+  const currentMenu = menuConfig[role] || [];
 
   return (
     <div className={`sidebar-container ${collapsed ? "collapsed" : ""}`}>
       <div className="sidebar bg-card" style={{ height: "105vh" }}>
         <ul className="menu">
-          {/* ✅ Admin Sidebar */}
-          {role === "Admin" && (
-            <>
-              <li className={`menu-item ${isActive("/admin-dashboard") ? "active" : ""}`}>
-                <div className="menu-link menu-i" onClick={() => navigate("/admin-dashboard")}>
-                  <i className="fa-solid fa-compass"></i>
-                  <span className="menu-text">Dashboard</span>
-                </div>
-              </li>
-              <li className={`menu-item ${isActive("/active-project") ? "active" : ""}`}>
-                <div className="menu-link menu-i" onClick={() => navigate("/active-project")}>
-                  <i className="fa-solid fa-diagram-project"></i>
-                  <span className="menu-text">Active Projects</span>
-                </div>
-              </li>
-              <li className={`menu-item ${isActive("/task-management") ? "active" : ""}`}>
-                <div className="menu-link menu-i" onClick={() => navigate("/task-management")}>
-                  <i className="fa-solid fa-tasks"></i>
-                  <span className="menu-text">Task Management</span>
-                </div>
-              </li>
-              <li className={`menu-item ${isActive("/project") ? "active" : ""}`}>
-                <div className="menu-link menu-i" onClick={() => navigate("/project")}>
-                  <i className="fa-solid fa-diagram-project"></i>
-                  <span className="menu-text">Projects</span>
-                </div>
-              </li>
-              <li className={`menu-item ${isActive("/sourcework") ? "active" : ""}`}>
-                <div className="menu-link menu-i" onClick={() => navigate("/sourcework")}>
-                  <i className="fa-solid fa-chart-line"></i>
-                  <span className="menu-text">Resource Workload</span>
-                </div>
-              </li>
-              <li className={`menu-item ${isActive("/action-center") ? "active" : ""}`}>
-                <div className="menu-link menu-i" onClick={() => navigate("/action-center")}>
-                  <i className="fa-solid fa-bolt"></i>
-                  <span className="menu-text">Action Center</span>
-                </div>
-              </li>
-              <li className={`menu-item ${isActive("/reportinganalytics") ? "active" : ""}`}>
-                <div className="menu-link menu-i" onClick={() => navigate("/reportinganalytics")}>
-                  <i className="fa-solid fa-chart-line"></i>
-                  <span className="menu-text">Reporting & Analytics</span>
-                </div>
-              </li>
-              <li className={`menu-item ${isActive("/auditlog") ? "active" : ""}`}>
-                <div className="menu-link menu-i" onClick={() => navigate("/auditlog")}>
-                  <i className="fa-solid fa-shield"></i>
-                  <span className="menu-text">Audit Logs</span>
-                </div>
-              </li>
-              <li className={`menu-item ${isActive("/attendance") ? "active" : ""}`}>
-                <div className="menu-link menu-i" onClick={() => navigate("/attendance")}>
-                  <i className="fa-solid fa-calendar-days"></i>
-                  <span className="menu-text">Attendance</span>
-                </div>
-              </li>
-              <li className={`menu-item ${isActive("/shift-allocation") ? "active" : ""}`}>
-                <div className="menu-link menu-i" onClick={() => navigate("/shift-allocation")}>
-                  <i className="fa-solid fa-life-ring"></i>
-                  <span className="menu-text">Shift Allocation</span>
-                </div>
-              </li>
-              <li className={`menu-item ${isActive("/calendar") ? "active" : ""}`}>
-                <div className="menu-link menu-i" onClick={() => navigate("/calendar")}>
-                  <i className="fa-solid fa-calendar"></i>
-                  <span className="menu-text">Calendar</span>
-                </div>
-              </li>
-              <li className={`menu-item ${isActive("/usermanage") ? "active" : ""}`}>
-                <div className="menu-link menu-i" onClick={() => navigate("/usermanage")}>
-                  <i className="fa-solid fa-users-gear"></i>
-                  <span className="menu-text">User</span>
-                </div>
-              </li>
-              <li className={`menu-item ${isActive("/role-permission") ? "active" : ""}`}>
-                <div className="menu-link menu-i" onClick={() => navigate("/role-permission")}>
-                  <i className="fa-brands fa-critical-role"></i>
-                  <span className="menu-text">Role & Permission</span>
-                </div>
-              </li>
-              <li className={`menu-item ${isActive("/collaboration") ? "active" : ""}`}>
-                <div className="menu-link menu-i" onClick={() => navigate("/collaboration")}>
-                  <i className="fa-solid fa-comments"></i>
-                  <span className="menu-text">Chat Room</span>
-                </div>
-              </li>
-            </>
-          )}
-
-          {/* ✅ Staff Sidebar */}
-          {role === "Staff" && (
-            <>
-              <li className={`menu-item ${isActive("/staff-dashboard") ? "active" : ""}`}>
-                <div className="menu-link menu-i" onClick={() => navigate("/staff-dashboard")}>
-                  <i className="fa-solid fa-compass"></i>
-                  <span className="menu-text">Dashboard</span>
-                </div>
-              </li>
-              <li className={`menu-item ${isActive("/task") ? "active" : ""}`}>
-                <div className="menu-link menu-i" onClick={() => navigate("/task")}>
-                  <i className="fa-solid fa-list"></i>
-                  <span className="menu-text">My Tasks</span>
-                </div>
-              </li>
-              <li className={`menu-item ${isActive("/attendance") ? "active" : ""}`}>
-                <div className="menu-link menu-i" onClick={() => navigate("/attendance")}>
-                  <i className="fa-solid fa-calendar-days"></i>
-                  <span className="menu-text">Attendance</span>
-                </div>
-              </li>
-              <li className={`menu-item ${isActive("/productivity") ? "active" : ""}`}>
-                <div className="menu-link menu-i" onClick={() => navigate("/productivity")}>
-                  <i className="fa-solid fa-chart-line"></i>
-                  <span className="menu-text">Productivity</span>
-                </div>
-              </li>
-              <li className={`menu-item ${isActive("/activity") ? "active" : ""}`}>
-                <div className="menu-link menu-i" onClick={() => navigate("/activity")}>
-                  <i className="fa-solid fa-clock-rotate-left"></i>
-                  <span className="menu-text">Activity</span>
-                </div>
-              </li>
-              <li className={`menu-item ${isActive("/messages") ? "active" : ""}`}>
-                <div className="menu-link menu-i" onClick={() => navigate("/messages")}>
-                  <i className="fa-solid fa-comment"></i>
-                  <span className="menu-text">Messaging</span>
-                </div>
-              </li>
-              <li className={`menu-item ${isActive("/settingpage") ? "active" : ""}`}>
-                <div className="menu-link menu-i" onClick={() => navigate("/settingpage")}>
-                  <i className="fa-solid fa-gear"></i>
-                  <span className="menu-text">Setting</span>
-                </div>
-              </li>
-            </>
-          )}
+          {currentMenu.map((item) => (
+            <li
+              key={item.path}
+              className={`menu-item ${isActive(item.path) ? "active" : ""}`}
+            >
+              <div
+                className="menu-link menu-i"
+                onClick={() => {
+                  navigate(item.path);
+                  menuItemClick();
+                }}
+              >
+                <i className={item.icon}></i>
+                <span className="menu-text">{item.text}</span>
+              </div>
+            </li>
+          ))}
         </ul>
       </div>
     </div>
