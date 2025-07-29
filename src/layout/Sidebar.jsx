@@ -294,7 +294,7 @@ const Sidebar = ({ collapsed }) => {
 
   return (
     <div className={`sidebar-container ${collapsed ? "collapsed" : ""}`}>
-      <div className="sidebar bg-card" style={{ height: "105vh" }}>
+      <div className="sidebar " style={{ height: "105vh" }}>
         <ul className="menu">
           {currentMenu.map((item) => (
             <li

@@ -1,79 +1,83 @@
 body {
-  background-color: #e6f0ff !important;
+  background-color: #f5faff !important; /* lighter than #e6f0ff */
 }
 
 .bg-main {
-  background-color: #e6f0ff !important;
+  background-color: #f5faff !important;
 }
 
 .white-placeholder::placeholder,
 input::placeholder,
 textarea::placeholder {
-  color: #666 !important;
+  color: #888 !important; /* lighter grey for soft tone */
 }
 
+/* ✨ Light Card Background */
 .bg-card {
-  background-color: #11192b !important; /* soft dark blue */
-  color: #ffffff !important;            /* light text for contrast */
-
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* subtle shadow */
+  background-color: #ffffff !important; /* white card */
+  color: #1a1a1a !important; /* dark text */
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08); /* softer, larger blur */
 }
 
-
+/* ✨ Table Styling */
 .table-gradient-bg {
   background-color: #ffffff !important;
-  color: #1a1a1a !important;
+  color: #333333 !important;
   border-collapse: collapse !important;
 }
 
 .table-gradient-bg th,
 .table-gradient-bg td {
-  background-color: transparent !important;
-  color: #1a1a1a !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  background-color: #ffffff !important;
+  color: #333333 !important;
+  border: 1px solid #e4eaf1 !important; /* light bluish border */
 }
 
 .table-gradient-bg thead th {
-  background-color: #f0f6ff !important;
-  color: #1a1a1a !important;
+  background-color: #f2f7fc !important; /* very light blue */
+  color: #333333 !important;
+  font-weight: 600;
 }
 
 .table-gradient-bg tbody tr:hover {
-  background-color: #f0f6ff !important;
+  background-color: #edf6ff !important; /* subtle light blue hover */
   color: #1a1a1a !important;
+  transition: background-color 0.2s ease;
 }
 
+/* ✨ Gradient Heading */
 .gradient-heading {
-  background: linear-gradient(to right, #4a90e2, #6db3f2);
+  background: linear-gradient(to right, #5fa8f5, #94c6ff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: bold;
 }
 
+/* ✨ Gradient Button */
 .gradient-button {
-  background: linear-gradient(to right, #4a90e2, #6db3f2);
+  background: linear-gradient(to right, #5fa8f5, #94c6ff);
   color: white;
   border: none;
   padding: 0.5rem 1.25rem;
   font-weight: 600;
   border-radius: 999px !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .gradient-button.active-filter {
-  border: 2px solid #4a90e2;
-  background: #4a90e2;
+  border: 2px solid #5fa8f5;
+  background: #5fa8f5;
   color: white;
-  font-weight: bold;
 }
 
 .gradient-button:hover {
   transform: scale(1.03);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
 }
 
-/* Modal Styling */
+/* ✨ Modal Styling */
 .custom-modal-dark .modal-content {
   background-color: #ffffff !important;
   color: #1a1a1a;
@@ -81,12 +85,8 @@ textarea::placeholder {
 }
 
 .custom-modal-dark .modal-header {
-  background-color: #e6f0ff !important;
+  background-color: #f5faff !important;
   color: #1a1a1a !important;
-}
-
-.custom-modal-dark .modal-header .btn-close {
-  filter: none;
 }
 
 .custom-modal-dark .modal-body {
@@ -94,13 +94,12 @@ textarea::placeholder {
   color: #1a1a1a;
 }
 
-/* Input Fields */
 .custom-modal-dark .form-control,
 .custom-modal-dark .form-select,
 .custom-modal-dark .option {
-  background-color: #f8f9fc !important;
+  background-color: #f9fafe !important;
   color: #1a1a1a !important;
-  border: 1px solid #ccc !important;
+  border: 1px solid #dcdcdc !important;
 }
 
 .custom-modal-dark option {
@@ -116,11 +115,13 @@ textarea::placeholder {
   color: #333;
 }
 
+/* ✨ Table Text Alignment */
 table tr td,
 table tr th {
   white-space: nowrap !important;
 }
 
+/* ✨ Create Card Styling */
 .create-card,
 .create-card input,
 .create-card textarea,
@@ -129,18 +130,18 @@ table tr th {
   color: #1a1a1a !important;
 }
 
-/* Calendar Light Theme */
+/* ✨ Calendar Light Theme */
 .calendar-blue .rbc-calendar {
   background-color: #ffffff !important;
   color: #1a1a1a !important;
 }
 
 .rbc-today {
-  background-color: #e6f0ff !important;
+  background-color: #edf6ff !important;
 }
 
 .rbc-off-range-bg {
-  background-color: #f0f6ff !important;
+  background-color: #f5faff !important;
 }
 
 .rbc-off-range {
