@@ -57,7 +57,7 @@ const Navbar = ({ toggleSidebar }) => {
               alt="Logo"
               style={{
                 width: window.innerWidth >= 992 ? "150px" : "120px",
-                height: "60px",
+                height: "65px",
               }}
             />
             <button
@@ -110,45 +110,7 @@ const Navbar = ({ toggleSidebar }) => {
               )}
             </div>
 
-            {/* Desktop View - User Info */}
-            <div className="d-none d-md-flex align-items-center gap-2 flex-wrap">
-              {role !== "Admin" && (
-                <>
-                  <span className="fw-semibold small text-white">
-                    {userFullName} –{" "}
-                    <span className={userStatus === "Available" ? "text-success" : "text-secondary"}>
-                      {userStatus}
-                    </span>
-                  </span>
-                  {userRole === "Team Member" && (
-                    <div className="form-check form-switch m-0">
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        id="statusSwitch"
-                        checked={userStatus === "Available"}
-                        onChange={e => {
-                          if (e.target.checked) {
-                            if (isOnBreak) {
-                              endBreak();
-                            } else {
-                              setUserStatus('Available');
-                              setShowOverlay(false);
-                            }
-                          } else {
-                            if (breakTimeRemaining > 0) {
-                              setShowStatusModal(true);
-                            } else {
-                              alert('You have exhausted your break limit for today.');
-                            }
-                          }
-                        }}
-                      />
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
+         
 
             {/* Notification Bell - Hidden on mobile */}
             <a
@@ -220,142 +182,11 @@ const Navbar = ({ toggleSidebar }) => {
         </div>
       </nav>
 
-      {/* Status Modal */}
-      {showStatusModal && (
-        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 3000 }}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content text-black">
-              <div className="modal-header">
-                <h5 className="modal-title">Set Status to Away</h5>
-              </div>
-              <div className="modal-body">
-                <p>Please select reason:</p>
-                <button
-                  className="btn btn-primary me-2"
-                  onClick={() => {
-                    setShowStatusModal(false);
-                    setShowBreakConfirmation(true);
-                  }}
-                >
-                  Break
-                </button>
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => {
-                    setUserStatus('(away)');
-                    setIsLoggedOut(true);
-                    setShowStatusModal(false);
-                    setShowOverlay(true);
-                    pauseTimeTracking();
-                  }}
-                >
-                  Logout
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+    
 
-      {/* Break Confirmation Modal */}
-      {showBreakConfirmation && (
-        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 3000 }}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content text-black">
-              <div className="modal-header">
-                <h5 className="modal-title">Confirm Break</h5>
-              </div>
-              <div className="modal-body">
-                {role === "Team Member" ? (
-                  <p>Remaining break time: {breakTimeRemaining} minutes</p>
-                ) : (
-                  <p>No break time limit for Managers. Your status will be visible to Admin.</p>
-                )}
-              </div>
-              <div className="modal-footer">
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => setShowBreakConfirmation(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => {
-                    setUserStatus('(away)');
-                    setIsOnBreak(true);
-                    setShowBreakConfirmation(false);
-                    setShowOverlay(true);
-                    if (role === "Team Member") {
-                      startBreakTimer();
-                    }
-                    // For Manager, no timer logic needed
-                  }}
-                >
-                  Confirm
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+    
 
-      {/* Gray Overlay Mask */}
-      {showOverlay && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            backgroundColor: 'rgba(128, 128, 128, 0.5)',
-            zIndex: 4000,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: 'white',
-              padding: '20px',
-              borderRadius: '8px',
-              textAlign: 'center',
-              color: 'black',
-              maxWidth: 320,
-              width: "90vw"
-            }}
-          >
-            <p>You are currently marked away. Please mark yourself Available to continue.</p>
-            {isOnBreak && (
-              <>
-                <p>Break time remaining: {breakTimeRemaining} minutes</p>
-                <button
-                  className="btn btn-primary mt-2"
-                  onClick={endBreak}
-                >
-                  End Break
-                </button>
-              </>
-            )}
-            {isLoggedOut && (
-              <Link to="/">
-                <button
-                  className="btn btn-success mt-3"
-                  onClick={() => {
-                    setUserStatus('Available');
-                    setShowOverlay(false);
-                    setIsLoggedOut(false);
-                  }}
-                >
-                  Login
-                </button>
-              </Link>
-            )}
-          </div>
-        </div>
-      )}
+  
     </>
   );
 };
