@@ -2,7 +2,7 @@
   width: 265px;
   scrollbar-width: none;
   background: linear-gradient(to right, #0f2b85, #3f0a74, #720f7e) !important;  
-  height: 90vh;
+  height: 100vh;
   overflow-y: auto;
   transition: width 0.3s ease;
   margin-top: 85px;
@@ -122,16 +122,18 @@
 }
 
 .menu-item.active .menu-link {
-  background-color: #133eb3;
-  color: white;
+  background-color: #dbe9ff; /* Light soft blue */
+  color: #133e80;            /* Darker blue for contrast */
   border-radius: 12px;
 }
 
+
 .menu-item:hover .menu-link {
-  background-color: #133eb3;
-  color: white;
+  background-color: #dbe9ff;
+  color: #133e80;
   border-radius: 12px;
 }
+
 
 .sidebar-container.collapsed .submenu .submenu-item i {
   visibility: visible !important;

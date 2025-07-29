@@ -1,131 +1,122 @@
-body{
- background: linear-gradient(to right, #0f2b85, #3f0a74, #720f7e)!important;
-
+body {
+  background-color: #e6f0ff !important;
 }
 
-
-
-
-.bg-main{
-    background: linear-gradient(to right, #0f2b85, #3f0a74, #720f7e)!important;
-
+.bg-main {
+  background-color: #e6f0ff !important;
 }
 
-.white-placeholder::placeholder {
-  color: white;
+.white-placeholder::placeholder,
+input::placeholder,
+textarea::placeholder {
+  color: #666 !important;
 }
-input::placeholder, textarea::placeholder {
-  color: white;
-}
-.bg-card{
-    background: linear-gradient(to bottom right, #141c3a, #1b2f6e);
-    color: white!important;
 
+.bg-card {
+  background-color: #11192b !important; /* soft dark blue */
+  color: #ffffff !important;            /* light text for contrast */
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* subtle shadow */
 }
+
 
 .table-gradient-bg {
-  background: linear-gradient(to bottom right, #141c3a, #1b2f6e) !important;
-  color: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
   border-collapse: collapse !important;
 }
 
 .table-gradient-bg th,
 .table-gradient-bg td {
   background-color: transparent !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #1a1a1a !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
 }
 
 .table-gradient-bg thead th {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-  color: #ffffff !important;
+  background-color: #f0f6ff !important;
+  color: #1a1a1a !important;
 }
 
 .table-gradient-bg tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-  color: #ffffff !important;
+  background-color: #f0f6ff !important;
+  color: #1a1a1a !important;
 }
 
-
-
 .gradient-heading {
-  background: linear-gradient(to right, #4dc3ff, #b86bff); 
+  background: linear-gradient(to right, #4a90e2, #6db3f2);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-weight:bold;
+  font-weight: bold;
 }
 
 .gradient-button {
-  background: linear-gradient(to right, #4dc3ff, #b86bff); /* blue to purple */
-  color: #1d1b1f; /* dark text for contrast */
+  background: linear-gradient(to right, #4a90e2, #6db3f2);
+  color: white;
   border: none;
   padding: 0.5rem 1.25rem;
   font-weight: 600;
-  border-radius: 999px!important; /* pill-shaped */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 999px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .gradient-button.active-filter {
-  border: 2px solid #ffb300;
-  background: linear-gradient(90deg, #ffb300 0%, #ff6f00 100%);
-  color: #fff;
+  border: 2px solid #4a90e2;
+  background: #4a90e2;
+  color: white;
   font-weight: bold;
 }
+
 .gradient-button:hover {
   transform: scale(1.03);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Modal background and header */
+/* Modal Styling */
 .custom-modal-dark .modal-content {
-  background: linear-gradient(to right, #0f2b85, #3f0a74, #720f7e)!important;
-  color: #ffffff;
+  background-color: #ffffff !important;
+  color: #1a1a1a;
   border-radius: 10px;
- 
 }
 
 .custom-modal-dark .modal-header {
-   background: linear-gradient(to right, #0f2b85, #3f0a74, #720f7e)!important;
-   color: #ffffff!important;
-  
+  background-color: #e6f0ff !important;
+  color: #1a1a1a !important;
 }
 
 .custom-modal-dark .modal-header .btn-close {
-  filter: invert(1);
+  filter: none;
 }
 
-
-/* Modal body */
 .custom-modal-dark .modal-body {
-  background: linear-gradient(to right, #0f2b85, #3f0a74, #720f7e)!important;
-  color: #ffffff;
+  background-color: #ffffff !important;
+  color: #1a1a1a;
 }
 
-/* Input fields */
+/* Input Fields */
 .custom-modal-dark .form-control,
 .custom-modal-dark .form-select,
 .custom-modal-dark .option {
-  background: linear-gradient(to bottom right, #141c3a, #1b2f6e) !important;
-  color: #ffffff !important;
-  border: 1px solid #555 !important;
+  background-color: #f8f9fc !important;
+  color: #1a1a1a !important;
+  border: 1px solid #ccc !important;
 }
+
 .custom-modal-dark option {
-  background-color: #1b2f6e;
-  color: white;
+  background-color: white;
+  color: #1a1a1a;
 }
 
 .custom-modal-dark .form-control::placeholder {
-  color: #aaa;
+  color: #999;
 }
 
 .custom-modal-dark .form-label {
-  color: #ccc;
+  color: #333;
 }
 
-
-
-table tr td, 
+table tr td,
 table tr th {
   white-space: nowrap !important;
 }
@@ -133,33 +124,25 @@ table tr th {
 .create-card,
 .create-card input,
 .create-card textarea,
-.create-card .form-control
-{
-   background: linear-gradient(to bottom right, #141c3a, #1b2f6e)!important;
-    color: white!important;
+.create-card .form-control {
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
 }
 
-
-/* calendarColors.css */
-
+/* Calendar Light Theme */
 .calendar-blue .rbc-calendar {
-    background: linear-gradient(to bottom right, #141c3a, #1b2f6e)!important;
-    color: white!important;
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
 }
-
 
 .rbc-today {
-  background-color: rgba(255, 255, 255, 0.1) !important;  /* Subtle light effect */
+  background-color: #e6f0ff !important;
 }
 
-/* Fix light background for off-range days in month view */
 .rbc-off-range-bg {
-  background-color: #0a0a3c !important;  /* Match your calendar's dark theme */
+  background-color: #f0f6ff !important;
 }
 
-/* Optional: Also change the text color of off-range days */
 .rbc-off-range {
-  color: #999 !important;  /* Light grey or your custom muted color */
+  color: #bbb !important;
 }
-
-

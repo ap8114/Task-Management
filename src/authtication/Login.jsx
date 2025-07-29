@@ -63,14 +63,12 @@ const LoginPage = () => {
           <div className="login-left-content">
             <img
               src="https://ik.imagekit.io/43o9qlnbg/Eminoids%20-%20Logo_W.png"
-              alt="Logo"
+              alt="Omega Tax & Services Logo"
               className="login-logo"
               style={{ width: "220px", height: "auto", marginBottom: "24px" }}
             />
-            <h1 className="text-white">Welcome Back!</h1>
-            <p className="fw-bold text-strong">
-              Let's turn tasks into triumphs!
-            </p>
+            <h1 className="text-white">Welcome to Omega</h1>
+            <p className="fw-bold text-strong">Your partner in financial clarity & compliance.</p>
           </div>
         </div>
 
@@ -79,9 +77,9 @@ const LoginPage = () => {
           <div className="login-form-container">
             <form className="login-form" onSubmit={handleSubmit}>
               <h4 className="login-form-title">
-                Hello!
+                Omega Tax & Services
                 <br />
-                <span className="text-muted">Step in and take control.</span>
+                <span className="text-muted">Secure Login Portal</span>
               </h4>
 
               {error && (
@@ -144,7 +142,7 @@ const LoginPage = () => {
               </button>
 
               <div className="text-center mt-3">
-                <p className="text-muted">Version Build 1.0</p>
+                <p className="text-muted">Omega Tax & Services — Version 1.0</p>
               </div>
             </form>
           </div>

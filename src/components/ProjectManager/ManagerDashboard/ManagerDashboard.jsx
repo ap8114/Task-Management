@@ -71,7 +71,7 @@ function ManagerDashboard() {
 
   return (
     <div
-      className="container-fluid bg-card py-3"
+      className="container-fluid bg-main py-3"
       style={{ minHeight: "100vh" }}
     >
       <h2 className="gradient-heading ">Manager Dashboard</h2>
