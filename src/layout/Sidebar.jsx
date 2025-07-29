@@ -256,22 +256,23 @@ const Sidebar = ({ collapsed }) => {
   // Centralized menu configuration
   const menuConfig = {
     Admin: [
-      { path: "/admin-dashboard", icon: "fa-solid fa-compass", text: "Dashboard" },
-      { path: "/task-management", icon: "fa-solid fa-tasks", text: "Task Management" },
-      { path: "/emailintegration", icon: "fa-solid fa-chart-line", text: " Email Integration" },
-      { path: "/reportinganalytics", icon: "fa-solid fa-chart-line", text: "Reporting" },
-      { path: "/calendar", icon: "fa-solid fa-calendar", text: "Calendar View" },
-      { path: "/usermanage", icon: "fa-solid fa-users-gear", text: "User Management" },
-      { path: "/notifications", icon: "fa-solid fa-chart-line", text: "Notifications & Alerts" },
+      { path: "/admin-dashboard", icon: "fa-solid fa-gauge", text: "Dashboard" },
+      { path: "/task-management", icon: "fa-solid fa-list-check", text: "Task Management" },
+      { path: "/emailintegration", icon: "fa-solid fa-envelope-open-text", text: "Email Integration" },
+      { path: "/reports", icon: "fa-solid fa-chart-pie", text: "Reporting" },
+      { path: "/calendar", icon: "fa-solid fa-calendar-days", text: "Calendar View" },
+      { path: "/usermanage", icon: "fa-solid fa-user-gear", text: "User Management" },
+      { path: "/notifications", icon: "fa-solid fa-bell", text: "Notifications & Alerts" },
     ],
-    Staff: [
-      { path: "/staff-dashboard", icon: "fa-solid fa-compass", text: "Dashboard" },
-      { path: "/my-task", icon: "fa-solid fa-bell", text: "My Task" },
-      { path: "/calendarview", icon: "fa-solid fa-calendar", text: "Calendar View" },
-      { path: "/reportsubmission", icon: "fa-solid fa-chart-line", text: "Report Submission" },
-      { path: "/notifications", icon: "fa-solid fa-chart-line", text: "Notifications" },
 
+    Staff: [
+      { path: "/staff-dashboard", icon: "fa-solid fa-gauge-high", text: "Dashboard" },
+      { path: "/my-task", icon: "fa-solid fa-check-to-slot", text: "My Task" },
+      { path: "/calendarview", icon: "fa-solid fa-calendar-week", text: "Calendar View" },
+      { path: "/reportsubmission", icon: "fa-solid fa-file-arrow-up", text: "Report Submission" },
+      { path: "/notificationspage", icon: "fa-solid fa-bell", text: "Notifications" },
     ]
+
   };
 
   const currentMenu = menuConfig[role] || [];

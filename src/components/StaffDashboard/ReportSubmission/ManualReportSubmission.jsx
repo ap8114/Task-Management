@@ -24,7 +24,7 @@ const ManualReportSubmission = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const form = e.currentTarget;
-    
+
     if (form.checkValidity()) {
       // Here you would typically send the data to your backend
       console.log('Report submitted:', formData);
@@ -37,21 +37,20 @@ const ManualReportSubmission = () => {
         issues: ''
       });
     }
-    
+
     setValidated(true);
   };
 
   return (
-    <div className="p-4" style={{ minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
-      <div className="mx-auto" style={{ maxWidth: '1200px' }}>
-        <Row className="justify-content-center">
-          <Col lg={10}>
+    <div className="p-4">
+      <div className="">
+        <div className="w-100">
+          <div className="mb-3">
+            <h3 className="fw-bold text-dark"> Manual Daily Report Submission</h3>
+            <small className="text-muted">Use this form when automation fails</small>
+          </div>
+          <Col lg={12}>
             <Card className="border-0 shadow-sm mb-4">
-              <Card.Header className="bg-white border-0">
-                <h4 className="mb-3 gradient-heading"> Manual Daily Report Submission</h4>
-                <small className="text-muted">Use this form when automation fails</small>
-              </Card.Header>
-              
               <Card.Body>
                 {submitted && (
                   <Alert variant="success" onClose={() => setSubmitted(false)} dismissible>
@@ -185,7 +184,7 @@ const ManualReportSubmission = () => {
               </Card.Body>
             </Card>
           </Col>
-        </Row>
+        </div>
       </div>
     </div>
   );

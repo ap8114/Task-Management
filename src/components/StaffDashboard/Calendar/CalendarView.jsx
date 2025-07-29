@@ -157,68 +157,68 @@ const CalendarView = () => {
   return (
     <div className="container-fluid py-3 ">
       <div className="card border-0 shadow-sm ">
-       <div className="card-header bg-white border-0">
-  <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
-    {/* Title */}
-    <h5 className="mb-2 gradient-heading">My Scheduled Tasks</h5>
+        <div className="card-header bg-white border-0">
+          <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+            {/* Title */}
+            <h3 className="fw-bold text-dark">My Scheduled Tasks</h3>
 
-    {/* Controls */}
-    <div className="d-flex flex-wrap align-items-center gap-2">
-      {/* Previous Button */}
-      <Button
-        variant="outline-secondary"
-        size="sm"
-        onClick={() => navigateDate("prev")}
-      >
-        &lt;
-      </Button>
+            {/* Controls */}
+            <div className="d-flex flex-wrap align-items-center gap-2">
+              {/* Previous Button */}
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={() => navigateDate("prev")}
+              >
+                &lt;
+              </Button>
 
-      {/* View Mode Dropdown */}
-      <Dropdown>
-        <Dropdown.Toggle variant="light" size="sm" id="view-mode-dropdown">
-          {viewMode.charAt(0).toUpperCase() + viewMode.slice(1)} View
-        </Dropdown.Toggle>
-        <Dropdown.Menu>
-          <Dropdown.Item onClick={() => setViewMode("day")}>Day</Dropdown.Item>
-          <Dropdown.Item onClick={() => setViewMode("week")}>Week</Dropdown.Item>
-          <Dropdown.Item onClick={() => setViewMode("month")}>Month</Dropdown.Item>
-        </Dropdown.Menu>
-      </Dropdown>
+              {/* View Mode Dropdown */}
+              <Dropdown>
+                <Dropdown.Toggle variant="light" size="sm" id="view-mode-dropdown">
+                  {viewMode.charAt(0).toUpperCase() + viewMode.slice(1)} View
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  <Dropdown.Item onClick={() => setViewMode("day")}>Day</Dropdown.Item>
+                  <Dropdown.Item onClick={() => setViewMode("week")}>Week</Dropdown.Item>
+                  <Dropdown.Item onClick={() => setViewMode("month")}>Month</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
 
-      {/* Date Range */}
-      <h6 className="mb-0">
-        {viewMode === "month"
-          ? currentDate.format("MMMM YYYY")
-          : viewMode === "week"
-          ? `${currentDate.clone().startOf("week").format("MMM D")} - ${currentDate
-              .clone()
-              .endOf("week")
-              .format("MMM D, YYYY")}`
-          : currentDate.format("MMMM D, YYYY")}
-      </h6>
+              {/* Date Range */}
+              <h6 className="mb-0">
+                {viewMode === "month"
+                  ? currentDate.format("MMMM YYYY")
+                  : viewMode === "week"
+                    ? `${currentDate.clone().startOf("week").format("MMM D")} - ${currentDate
+                      .clone()
+                      .endOf("week")
+                      .format("MMM D, YYYY")}`
+                    : currentDate.format("MMMM D, YYYY")}
+              </h6>
 
-      {/* Next Button */}
-      <Button
-        variant="outline-secondary"
-        size="sm"
-        onClick={() => navigateDate("next")}
-      >
-        &gt;
-      </Button>
+              {/* Next Button */}
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={() => navigateDate("next")}
+              >
+                &gt;
+              </Button>
 
-      {/* Today Button */}
-      <Button
-        variant="outline-primary"
-        size="sm"
-        onClick={() => setCurrentDate(moment())}
-      >
-        Today
-      </Button>
-    </div>
-  </div>
-</div>
+              {/* Today Button */}
+              <Button
+                variant="outline-primary"
+                size="sm"
+                onClick={() => setCurrentDate(moment())}
+              >
+                Today
+              </Button>
+            </div>
+          </div>
+        </div>
 
-        
+
         <div className="card-body ">
           {viewMode === "day" && (
             <div>
@@ -288,9 +288,8 @@ const CalendarView = () => {
                             {dayTasks.map((task) => (
                               <div
                                 key={task.id}
-                                className={`p-1 mb-1 rounded text-white bg-${
-                                  getStatusBadge(task.status)
-                                }`}
+                                className={`p-1 mb-1 rounded text-white bg-${getStatusBadge(task.status)
+                                  }`}
                               >
                                 <small>
                                   {task.time} - {task.title}

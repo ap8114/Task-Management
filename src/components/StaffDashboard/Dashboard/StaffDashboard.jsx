@@ -81,7 +81,7 @@ function StaffDashboard() {
   return (
     <div className="container-fluid py-3">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="mb-0">Staff Dashboard</h2>
+        <h3 className="fw-bold text-dark">Staff Dashboard</h3>
         <div className="text-muted">{formattedDate}</div>
       </div>
 

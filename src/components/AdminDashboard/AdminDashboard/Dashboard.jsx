@@ -93,68 +93,9 @@ const Dashboard = () => {
 
     return (
         <div className="container-fluid py-4">
-            <h2 className="mb-4">Task Management Dashboard</h2>
+            <h3 className="mb-4 fw-bold text-dark">Task Management Dashboard</h3>
 
-            {/* Filters */}
-            <Card className="mb-4 shadow-sm">
-                <Card.Body>
-                    <Form>
-                        <Row>
-                            <Col md={4}>
-                                <Form.Group controlId="employeeFilter">
-                                    <Form.Label>Employee</Form.Label>
-                                    <Form.Select
-                                        name="employee"
-                                        value={filters.employee}
-                                        onChange={handleFilterChange}
-                                    >
-                                        <option value="all">All Employees</option>
-                                        <option value="john">John Doe</option>
-                                        <option value="jane">Jane Smith</option>
-                                        <option value="mike">Mike Johnson</option>
-                                    </Form.Select>
-                                </Form.Group>
-                            </Col>
-                            <Col md={4}>
-                                <Form.Group controlId="dateRangeFilter">
-                                    <Form.Label>Date Range</Form.Label>
-                                    <Form.Select
-                                        name="dateRange"
-                                        value={filters.dateRange}
-                                        onChange={handleFilterChange}
-                                    >
-                                        <option value="today">Today</option>
-                                        <option value="week">This Week</option>
-                                        <option value="month">This Month</option>
-                                        <option value="custom">Custom Range</option>
-                                    </Form.Select>
-                                </Form.Group>
-                            </Col>
-                            <Col md={4}>
-                                <Form.Group controlId="taskTypeFilter">
-                                    <Form.Label>Task Type</Form.Label>
-                                    <Form.Select
-                                        name="taskType"
-                                        value={filters.taskType}
-                                        onChange={handleFilterChange}
-                                    >
-                                        <option value="all">All Types</option>
-                                        <option value="development">Development</option>
-                                        <option value="design">Design</option>
-                                        <option value="meeting">Meeting</option>
-                                        <option value="documentation">Documentation</option>
-                                    </Form.Select>
-                                </Form.Group>
-                            </Col>
-                        </Row>
-                        <div className="d-flex justify-content-end mt-3">
-                            <Button variant="primary" className="me-2">Apply Filters</Button>
-                            <Button variant="outline-secondary">Reset</Button>
-                        </div>
-                    </Form>
-                </Card.Body>
-            </Card>
-
+        
             {/* Summary Cards */}
             <Row className="mb-4">
                 <Col xl={3} lg={6} md={6} sm={12} className="mb-4">
@@ -283,12 +224,73 @@ const Dashboard = () => {
                 </Col>
             </Row>
 
+
+   {/* Filters */}
+            <Card className="mb-4 shadow-sm">
+                <Card.Body>
+                    <Form>
+                        <Row>
+                            <Col md={4}>
+                                <Form.Group controlId="employeeFilter">
+                                    <Form.Label>Employee</Form.Label>
+                                    <Form.Select
+                                        name="employee"
+                                        value={filters.employee}
+                                        onChange={handleFilterChange}
+                                    >
+                                        <option value="all">All Employees</option>
+                                        <option value="john">John Doe</option>
+                                        <option value="jane">Jane Smith</option>
+                                        <option value="mike">Mike Johnson</option>
+                                    </Form.Select>
+                                </Form.Group>
+                            </Col>
+                            <Col md={4}>
+                                <Form.Group controlId="dateRangeFilter">
+                                    <Form.Label>Date Range</Form.Label>
+                                    <Form.Select
+                                        name="dateRange"
+                                        value={filters.dateRange}
+                                        onChange={handleFilterChange}
+                                    >
+                                        <option value="today">Today</option>
+                                        <option value="week">This Week</option>
+                                        <option value="month">This Month</option>
+                                        <option value="custom">Custom Range</option>
+                                    </Form.Select>
+                                </Form.Group>
+                            </Col>
+                            <Col md={4}>
+                                <Form.Group controlId="taskTypeFilter">
+                                    <Form.Label>Task Type</Form.Label>
+                                    <Form.Select
+                                        name="taskType"
+                                        value={filters.taskType}
+                                        onChange={handleFilterChange}
+                                    >
+                                        <option value="all">All Types</option>
+                                        <option value="development">Development</option>
+                                        <option value="design">Design</option>
+                                        <option value="meeting">Meeting</option>
+                                        <option value="documentation">Documentation</option>
+                                    </Form.Select>
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        {/* <div className="d-flex justify-content-end mt-3">
+                            <Button variant="primary" className="me-2">Apply Filters</Button>
+                            <Button variant="outline-secondary">Reset</Button>
+                        </div> */}
+                    </Form>
+                </Card.Body>
+            </Card> 
+
             {/* Recent Tasks */}
             <Card className="shadow-sm">
                 <Card.Body>
                     <div className="d-flex justify-content-between align-items-center mb-4">
                         <h5 className="mb-0">Recent Tasks</h5>
-                        <Button variant="outline-primary" size="sm">View All</Button>
+                        {/* <Button variant="outline-primary" size="sm">View All</Button> */}
                     </div>
                     <div className="table-responsive">
                         <table className="table table-hover">

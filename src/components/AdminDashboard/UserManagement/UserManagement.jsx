@@ -144,22 +144,23 @@ const UserManagement = () => {
 
   return (
     <Container fluid className="py-4">
-      <Row className="mb-4">
-        <Col>
-          <h2>User Management</h2>
-          <p className="text-muted">Manage staff users and their permissions</p>
+      <Row className="align-items-start align-items-md-center justify-content-between g-3 mb-3">
+        <Col xs={12} md="auto">
+          <h3 className="fw-bold text-dark mb-1">User Management</h3>
+          <p className="text-muted mb-0">Manage staff users and their permissions</p>
         </Col>
-        <Col className="text-end">
-          <Button variant="primary" onClick={handleShowAdd}>
+        <Col xs={12} md="auto" className="text-md-end">
+          <Button variant="primary" onClick={handleShowAdd} className="w-100 w-md-auto">
             <i className="bi bi-plus-lg"></i> Add New User
           </Button>
         </Col>
       </Row>
 
+
       <Card className="mb-4">
         <Card.Body>
-          <Row className="mb-3">
-            <Col md={6}>
+          <Row className="mb-3 g-2 align-items-center">
+            <Col xs={12} md={6}>
               <Form.Group>
                 <Form.Control
                   type="text"
@@ -169,7 +170,8 @@ const UserManagement = () => {
                 />
               </Form.Group>
             </Col>
-            <Col md={3}>
+
+            <Col xs={12} sm={6} md={3}>
               <Form.Select
                 value={filterRole}
                 onChange={(e) => setFilterRole(e.target.value)}
@@ -180,12 +182,14 @@ const UserManagement = () => {
                 <option value="Viewer">Viewer</option>
               </Form.Select>
             </Col>
-            <Col md={3} className="text-end">
-              <Badge bg="light" text="dark" className="p-2">
+
+            <Col xs={12} sm={6} md={3} className="text-md-end">
+              <Badge bg="" text="dark" className="p-2 w-100 w-md-auto d-block text-center text-md-end">
                 Total Users: {filteredUsers.length}
               </Badge>
             </Col>
           </Row>
+
 
           <div className="table-responsive">
             <Table striped bordered hover>

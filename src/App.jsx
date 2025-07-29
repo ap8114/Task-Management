@@ -7,32 +7,10 @@ import { useEffect, useState } from "react";
 import LoginPage from "./authtication/Login";
 import SignupPage from "./authtication/singup";
 
-import LeadDashboard from "./components/AdminDashboard/ActiveProject/ActiveProject";
 // import AdminDashboard from "./components/AdminDashboard/AdminDashboard";
 import TaskManagement from "./components/AdminDashboard/TaskManagement/TaskManagemnet";
 import UserManagement from "./components/AdminDashboard/UserManagement/UserManagement";
-import ResourceManagement from "./components/AdminDashboard/ResourceManagement/ResourceManagement";
-import ProjectSupportPortal from "./components/AdminDashboard/ProjectSupport/ProjectSupport";
-import SettingsPage from "./components/AdminDashboard/Setting/Setting";
-import ProfileAcc from "./components/AdminDashboard/ProfileAcc/ProfileAcc";
-import QAManagement from "./components/AdminDashboard/QAManagement/QAManagement";
-import TimeTracker from "./components/AdminDashboard/TimeTracker/TimeTracker";
-import ReportingAnalytics from "./components/AdminDashboard/ReportingAnalytics/ReportingAnalytics";
-import FileManagementSystem from "./components/AdminDashboard/FileManagementSystem/FileManagementSystem";
-import TaskDashboard from "./components/TeamMember/Taskmanagementdashboard/TaskDashboard";
-import Messages from "./components/TeamMember/Messages/Messages";
-import ActivitySummary from "./components/TeamMember/Activity/ActivitySummary";
-
-
-import Attendance from "./components/TeamMember/Attendance/Attendance";
-import Productivity from "./components/TeamMember/Productivity/Productivity";
-
-import Task from "./components/TeamMember/Task/Task";
-import ChangesPassword from "./components/AdminDashboard/ChangePassword/ChangesPassword";
-import RoleManagementSystem from "./components/AdminDashboard/Role&Permission/Role&PErmission";
-import Project from "./components/AdminDashboard/Project/Project";
 import Calander from "./components/AdminDashboard/Calander/Calander";
-import ActionCenter from "./components/AdminDashboard/ActionCenter/ActionCenter";
 import AuthLayout from "./layout/authLayout";
 import MainLayout from "./layout/MainLayout";
 import EmailIntegration from "./components/AdminDashboard/EmailIntegration/EmailIntegration";
@@ -43,6 +21,7 @@ import MyTasks from "./components/StaffDashboard/Mytask/MyTasks";
 import CalendarView from "./components/StaffDashboard/Calendar/CalendarView";
 import ManualReportSubmission from "./components/StaffDashboard/ReportSubmission/ManualReportSubmission";
 import NotificationsPage from "./components/StaffDashboard/Notification/NotificationsPage";
+import Reports from "./components/AdminDashboard/Reports/Reports";
 
 
 
@@ -79,55 +58,19 @@ function App() {
       >
         <Route path="/admin-dashboard" element={<Dashboard />} />
         <Route path="/calendar" element={<Calander />} />
-        <Route path="/attendance" element={<Attendance />} />
         <Route path="/emailintegration" element={<EmailIntegration />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/task-management" element={<TaskManagement />} />
-        <Route path="/calendar" element={<Calander />} />
+         <Route path="/reports" element={<Reports />} />
         <Route path="/usermanage" element={<UserManagement />} />
-        <Route path="/resourcemanagement" element={<ResourceManagement />} />
-        <Route path="/projectsupport" element={<ProjectSupportPortal />} />
-        <Route path="/settingpage" element={<SettingsPage />} />
-        <Route path="/profile" element={<ProfileAcc />} />
-        <Route path="/timetracker" element={<TimeTracker />} />
-        <Route path="/reportinganalytics" element={<ReportingAnalytics />} />
-        <Route
-          path="/filemanagementsystem"
-          element={<FileManagementSystem />}
-        />
-        <Route path="/qamanagement" element={<QAManagement />} />
-        <Route path="/changepassword" element={<ChangesPassword />} />
-        <Route path="/role-permission" element={<RoleManagementSystem />} />
-        <Route path="/project" element={<Project />} />
-        <Route path="/action-center" element={<ActionCenter />} />
 
-        {/* Lead routes */}
-        <Route path="/active-project" element={<LeadDashboard />} />
-
-        {/* Team Member routes */}
-        <Route path="/team-dashboard" element={<TaskDashboard />} />
-        <Route path="/attendance" element={<Attendance />} />
-
-        {/* team Member */}
-        <Route path="/task" element={<Task />} />
-        <Route path="/team-dashboard" element={<TaskDashboard />} />
-        <Route path="/messages" element={<Messages />} />
-        <Route path="/activity" element={<ActivitySummary />} />
-
-        {/* Add your other routes here */}
 
         {/*staff dashbaord  project */}
         <Route path="/staff-dashboard" element={<StaffDashboard />} />
         <Route path="/my-task" element={<MyTasks />} />
         <Route path="/calendarview" element={<CalendarView />} />
         <Route path="/reportsubmission" element={<ManualReportSubmission />} />
-        <Route path="/notifications" element={<NotificationsPage />} />
-
-        {/* <Route path="/task" element={<Task/>} /> */}
-
-        {/* productivity */}
-
-        <Route path="/productivity" element={<Productivity />} />
+        <Route path="/notificationspage" element={<NotificationsPage />} />
       </Route>
 
       {/* Fallback Route */}

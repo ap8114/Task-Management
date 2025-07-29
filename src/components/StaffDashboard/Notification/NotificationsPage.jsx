@@ -84,15 +84,16 @@ const NotificationsPage = () => {
 
   return (
     <Container fluid className="py-4">
-      <Row>
-        <Col>
-          <Card className="border-0 shadow-sm mb-4 ">
-            <Card.Header className="bg-card border-0 d-flex flex-wrap justify-content-between align-items-center px-3 py-3">
-              <h2 className="mb-2 mb-sm-0 gradient-heading"> Notifications</h2>
+      <div className="d-flex flex-wrap justify-content-between align-items-center mb-3">
+              <h3 className="fw-bold text-dark"> Notifications</h3>
               <Button variant="outline-primary" size="sm" onClick={markAllAsRead}>
                 Mark All as Read
               </Button>
-            </Card.Header>
+            </div>
+      <div>
+        <Col>
+          <Card className="border-0 shadow-sm mb-4 ">
+            
             <Card.Body className="p-0 bg-card" >
               <div className="list-group list-group-flush">
                 {notifications.map((notification) => (
@@ -125,7 +126,7 @@ const NotificationsPage = () => {
             </Card.Body>
           </Card>
         </Col>
-      </Row>
+      </div>
 
       {/* Summary Cards Row */}
       <Row className="gy-3 gx-3">

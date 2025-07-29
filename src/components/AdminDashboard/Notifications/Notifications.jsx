@@ -178,7 +178,8 @@ const Notifications = () => {
                 <Col md={8}>
                     <Card className="mb-4 shadow-sm">
                         <Card.Header className=" d-flex justify-content-between align-items-center">
-                            <h4>Task Management</h4>
+                            <h3 className='fw-bold text-dark'>
+                                Notifications & Alerts</h3>
                             <Button variant="primary" onClick={() => setShowTaskModal(true)}>
                                 + Add Task
                             </Button>
@@ -265,7 +266,7 @@ const Notifications = () => {
                 <Col md={4}>
                     <Card className="shadow-sm">
                         <Card.Header className="bg-light d-flex justify-content-between align-items-center">
-                            <h5>
+                            <h5 className='fw-bold text-dark'>
                                 <FaBell /> Notifications
                                 {unreadCount > 0 && <Badge bg="danger" className="ms-2">{unreadCount}</Badge>}
                             </h5>

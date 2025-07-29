@@ -93,7 +93,7 @@ const MyTasks = () => {
   return (
     <div className="container-fluid py-3">
            <div className="">
-          <h2 className=" mb-3 gradient-heading"> My Tasks</h2>
+          <h3 className="fw-bold text-dark"> My Tasks</h3>
         </div>
       <div className="card border-0 shadow-sm">
      

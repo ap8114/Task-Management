@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Table, Button, Form, Modal, Navbar, Container, Card, ProgressBar } from 'react-bootstrap';
 import { FaFilePdf, FaFileExcel, FaEnvelope, FaSearch, FaFilter } from 'react-icons/fa';
 
-const TaskManagementSystem = () => {
+const Reports = () => {
   // Mock data for tasks
   const initialTasks = [
     {
@@ -81,7 +81,7 @@ const TaskManagementSystem = () => {
     <div className="p-3">
       {/* Navigation Bar */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h3 className="mb-0">Report</h3>
+        <h3 className="fw-bold text-dark">Report</h3>
 
       </div>
 
@@ -90,7 +90,7 @@ const TaskManagementSystem = () => {
         {/* Stats Cards */}
         <div className="row mb-4">
           <div className="col-md-3 mb-3">
-            <Card className="border-start border-5 border-primary shadow-sm h-100">
+            <Card className=" shadow-sm h-100">
               <Card.Body>
                 <Card.Title>Total Tasks</Card.Title>
                 <Card.Text className="display-6">{tasks.length}</Card.Text>
@@ -98,7 +98,7 @@ const TaskManagementSystem = () => {
             </Card>
           </div>
           <div className="col-md-3 mb-3">
-            <Card className="border-start border-5 border-success shadow-sm h-100">
+            <Card className="shadow-sm h-100">
               <Card.Body>
                 <Card.Title>Completed</Card.Title>
                 <Card.Text className="display-6">{completedTasks}</Card.Text>
@@ -106,7 +106,7 @@ const TaskManagementSystem = () => {
             </Card>
           </div>
           <div className="col-md-3 mb-3">
-            <Card className="border-start border-5 border-warning shadow-sm h-100">
+            <Card className="shadow-sm h-100">
               <Card.Body>
                 <Card.Title>Pending</Card.Title>
                 <Card.Text className="display-6">{pendingTasks}</Card.Text>
@@ -114,7 +114,7 @@ const TaskManagementSystem = () => {
             </Card>
           </div>
           <div className="col-md-3 mb-3">
-            <Card className="border-start border-5 border-info shadow-sm h-100">
+            <Card className="shadow-sm h-100">
               <Card.Body>
                 <Card.Title>Total Revenue</Card.Title>
                 <Card.Text className="display-6">${totalRevenue}</Card.Text>
@@ -123,66 +123,68 @@ const TaskManagementSystem = () => {
           </div>
         </div>
 
-        {/* Progress Bar */}
-        {/* <div className="mb-4">
-          <div className="d-flex justify-content-between mb-2">
-            <span>Task Completion Rate</span>
-            <span>{Math.round(completionRate)}%</span>
-          </div>
-          <ProgressBar now={completionRate} variant={completionRate === 100 ? 'success' : 'primary'} />
-        </div> */}
-
         {/* Action Bar */}
 
-        <h2>Daily Task Report</h2>
         {/* Status Filter */}
-        <div className="mb-3 d-flex justify-content-between align-items-center">
-          {/* Left side - All filters */}
-          <div className="d-flex align-items-center">
-            <Form.Select
-              className="me-3"
-              style={{ width: "180px" }}  // Slightly wider than content
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-            >
-              <option value="All">All Statuses</option>
-              <option value="Completed">Completed</option>
-              <option value="Pending">Pending</option>
-            </Form.Select>
+        <div className="mb-3">
+          <div className="d-flex flex-column flex-lg-row justify-content-between align-items-stretch align-items-lg-center gap-3">
+            {/* Left side - Filters + Search */}
+            <div className="d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-2">
+              {/* Status Filter */}
+              <Form.Select
+                style={{ width: "180px" }}
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+              >
+                <option value="All">All Statuses</option>
+                <option value="Completed">Completed</option>
+                <option value="Pending">Pending</option>
+              </Form.Select>
 
-            <Button variant="outline-secondary" className="me-3">
-              <FaFilter className="me-1" /> Filters
-            </Button>
+              {/* Search Bar */}
+              <Form className="d-flex flex-grow-1">
+                <Form.Control
+                  type="search"
+                  placeholder="Search tasks..."
+                  className="me-2"
+                  aria-label="Search"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <Button variant="primary">
+                  <FaSearch />
+                </Button>
+              </Form>
+            </div>
 
-            {/* Search in middle */}
-            <Form className="d-flex me-3">
-              <Form.Control
-                type="search"
-                placeholder="Search tasks..."
-                className="me-2"
-                aria-label="Search"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <Button variant="primary">
-                <FaSearch />
-              </Button>
-            </Form>
-          </div>
+            {/* Right side - Export/Email Buttons */}
+           <div className="d-flex flex-wrap flex-md-nowrap justify-content-end align-items-center gap-2">
+  <Button
+    variant="outline-primary"
+    onClick={() => handleExport('pdf')}
+    className="flex-fill flex-md-grow-0"
+  >
+    <FaFilePdf className="me-1" /> PDF
+  </Button>
+  <Button
+    variant="outline-success"
+    onClick={() => handleExport('excel')}
+    className="flex-fill flex-md-grow-0"
+  >
+    <FaFileExcel className="me-1" /> Excel
+  </Button>
+  <Button
+    variant="primary"
+    onClick={() => setShowEmailModal(true)}
+    className="flex-fill flex-md-grow-0"
+  >
+    <FaEnvelope className="me-1" /> Email Report
+  </Button>
+</div>
 
-          {/* Right side - Export/Email buttons */}
-          <div className="d-flex align-items-center">
-            <Button variant="outline-primary" className="me-2" onClick={() => handleExport('pdf')}>
-              <FaFilePdf className="me-1" /> PDF
-            </Button>
-            <Button variant="outline-success" className="me-2" onClick={() => handleExport('excel')}>
-              <FaFileExcel className="me-1" /> Excel
-            </Button>
-            <Button variant="primary" onClick={() => setShowEmailModal(true)}>
-              <FaEnvelope className="me-1" /> Email Report
-            </Button>
           </div>
         </div>
+
 
         {/* Tasks Table */}
         <div className="table-responsive">
@@ -282,4 +284,4 @@ const TaskManagementSystem = () => {
   );
 };
 
-export default TaskManagementSystem;
+export default Reports;
