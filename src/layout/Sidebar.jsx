@@ -246,6 +246,10 @@ const Sidebar = ({ collapsed }) => {
   const location = useLocation();
   const role = localStorage.getItem("userRole");
 
+  const toggleSubmenu = (menuName) => {
+    setOpenSubmenu((prev) => (prev === menuName ? null : menuName));
+  };
+
   const isActive = (path) => location.pathname === path;
   const menuItemClick = () => console.log("Menu item clicked");
 
@@ -270,7 +274,7 @@ const Sidebar = ({ collapsed }) => {
       // { path: "/collaboration", icon: "fa-solid fa-comments", text: "Chat Room" },
        { path: "/notificationalerts", icon: "fa-solid fa-chart-line", text: "Notifications & Alerts" },
     ],
-    Manager: [
+    Staff: [
       { path: "/manager-dashboard", icon: "fa-solid fa-compass", text: "Dashboard" },
       // { path: "/assigned", icon: "fa-solid fa-address-card", text: "My Tasks" },
       // { path: "/createproject", icon: "fa-solid fa-circle-plus", text: "Create Project" },

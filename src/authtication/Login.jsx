@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope, faLock, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
@@ -6,38 +6,12 @@ import "./Login.css";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const [showVideo, setShowVideo] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [fadeOut, setFadeOut] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    const checkIfMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
-    checkIfMobile();
-    window.addEventListener("resize", checkIfMobile);
-
-    return () => {
-      window.removeEventListener("resize", checkIfMobile);
-    };
-  }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setFadeOut(true);
-      setTimeout(() => {
-        setShowVideo(false);
-      }, 1000);
-    }, 7000);
-    return () => clearTimeout(timer);
-  }, []);
 
   const roleCredentials = {
     Admin: { email: "admin@example.com", password: "admin@123" },
@@ -55,11 +29,9 @@ const LoginPage = () => {
 
     setIsLoading(true);
 
-    // Simulate login validation
     setTimeout(() => {
       const creds = roleCredentials[role];
       if (email === creds.email && password === creds.password) {
-        // Store fake token and user data
         localStorage.setItem("authToken", "dummy-token");
         localStorage.setItem("userRole", role);
         localStorage.setItem("userEmail", email);
@@ -82,26 +54,6 @@ const LoginPage = () => {
     setEmail(roleCredentials[selectedRole].email);
     setPassword(roleCredentials[selectedRole].password);
   };
-
-  if (showVideo) {
-    return (
-      <div className={`video-splash-screen ${fadeOut ? "" : ""}`}>
-        <video
-          autoPlay
-          muted
-          playsInline
-          className="splash-video"
-          style={{ height: isMobile ? "100%" : "100%" }}
-        >
-          <source
-            src={isMobile ? "Video/mob.mp4" : "/Video/web.mp4"}
-            type="video/mp4"
-          />
-          Your browser does not support the video tag.
-        </video>
-      </div>
-    );
-  }
 
   return (
     <div className="login-page">

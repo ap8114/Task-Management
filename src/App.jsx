@@ -115,7 +115,7 @@ function App() {
 
         {/*manager project */}
 
-        <Route path="/manager-dashboard" element={<ManagerDashboard />} />
+        <Route path="/staff-dashboard" element={<ManagerDashboard />} />
         <Route path="/createproject" element={<CreateProject />} />
         <Route path="/attendance" element={<Attendance />} />
         <Route path="/assigned" element={<Assigned />} />
