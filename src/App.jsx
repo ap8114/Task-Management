@@ -22,6 +22,7 @@ import CalendarView from "./components/StaffDashboard/Calendar/CalendarView";
 import ManualReportSubmission from "./components/StaffDashboard/ReportSubmission/ManualReportSubmission";
 import NotificationsPage from "./components/StaffDashboard/Notification/NotificationsPage";
 import Reports from "./components/AdminDashboard/Reports/Reports";
+import Profile from "./Profile/Profile";
 
 
 
@@ -64,6 +65,8 @@ function App() {
          <Route path="/reports" element={<Reports />} />
         <Route path="/usermanage" element={<UserManagement />} />
 
+{/* Profile */}
+ <Route path="/profile" element={<Profile />} />
 
         {/*staff dashbaord  project */}
         <Route path="/staff-dashboard" element={<StaffDashboard />} />
