@@ -1,8 +1,8 @@
 .sidebar-container {
   width: 265px;
   scrollbar-width: none;
-   background-color: #11192b !important; /* soft dark blue */
-  color: #ffffff !important;            /* light text for contrast */
+   background-color: #c6dbf8 !important; /* soft dark blue */
+  color: black !important;            /* light text for contrast */
 
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* subtle shadow */ 
   height: 100vh;
@@ -66,7 +66,7 @@
   padding: 10px;
   gap: 8px;
   text-decoration: none;
-  color: white;
+  color: black;
   cursor: pointer;
   transition: background 0.3s ease;
   font-size: 15px; /* Added font-size */
@@ -125,15 +125,15 @@
 }
 
 .menu-item.active .menu-link {
-  background-color: #dbe9ff; /* Light soft blue */
-  color: #133e80;            /* Darker blue for contrast */
+  background-color: #354a7c; /* Light soft blue */
+  color: white;            /* Darker blue for contrast */
   border-radius: 12px;
 }
 
 
 .menu-item:hover .menu-link {
-  background-color: #dbe9ff;
-  color: #133e80;
+  background-color: #354a7c;
+  color: white;
   border-radius: 12px;
 }
 

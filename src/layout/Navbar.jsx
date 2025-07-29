@@ -47,17 +47,17 @@ const Navbar = ({ toggleSidebar }) => {
 
   return (
     <>
-      <nav className="navbar navbar-expand-lg navbar-light  py-2" style={{backgroundColor:"#11192b"}}>
+      <nav className="navbar navbar-expand-lg navbar-light   py-2" style={{backgroundColor:"#c6dbf8"}}>
         <div className="container-fluid px-2 px-md-3">
           {/* Brand and Sidebar Toggle */}
           <div className="d-flex align-items-center gap-3 flex-shrink-0">
             <img
               // src="https://ik.imagekit.io/wycpoxj6v/Eminoids%20-%20Logo_B.png?updatedAt=1750836038955"
-              src="https://ik.imagekit.io/43o9qlnbg/Eminoids%20-%20Logo_W.png"
+              src="https://i.postimg.cc/7hwsfwW3/Screenshot-20250728-133647-Adobe-Acrobat-removebg-preview.png"
               alt="Logo"
               style={{
                 width: window.innerWidth >= 992 ? "150px" : "120px",
-                height: "40px",
+                height: "60px",
               }}
             />
             <button
@@ -152,7 +152,7 @@ const Navbar = ({ toggleSidebar }) => {
 
             {/* Notification Bell - Hidden on mobile */}
             <a
-              className="btn btn-link text-white p-2 d-none d-md-block"
+              className="btn btn-link text-black p-2 d-none d-md-block"
               href="#"
               style={{ fontSize: "22px", textDecoration: "none" }}
               aria-label="Notifications"
@@ -163,7 +163,7 @@ const Navbar = ({ toggleSidebar }) => {
             {/* Profile Dropdown */}
             <div className="dropdown">
               <button
-                className="btn btn-link text-white p-2 d-flex align-items-center"
+                className="btn btn-link text-black p-2 d-flex align-items-center"
                 style={{
                   fontSize: "22px",
                   textDecoration: "none",

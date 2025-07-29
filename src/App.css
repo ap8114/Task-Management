@@ -270,7 +270,7 @@ select.form-input {
 /* navbar start */
 .navbar {
   height: 85px;
-  border-bottom: 1px solid #949494;
+ 
   position: fixed;
   z-index: 5;
   background-color: #3b62ce;
