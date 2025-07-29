@@ -40,7 +40,7 @@
 //                   <span className="menu-text">Dashboard</span>
 //                 </div>
 //               </li>
-              
+
 //               <li
 //                 className={`menu-item ${isActive("/task-management") ? "active" : ""
 //                   }`}
@@ -56,7 +56,7 @@
 //                   <span className="menu-text">Task Management</span>
 //                 </div>
 //               </li>
-              
+
 //               <li
 //                 className={`menu-item ${isActive("/email-integration") ? "active" : ""
 //                   }`}
@@ -72,7 +72,7 @@
 //                   <span className="menu-text">Email Integration</span>
 //                 </div>
 //               </li>
-              
+
 //               <li
 //                 className={`menu-item ${isActive("/calendar") ? "active" : ""}`}
 //               >
@@ -87,7 +87,7 @@
 //                   <span className="menu-text">Calendar View</span>
 //                 </div>
 //               </li>
-              
+
 //               <li
 //                 className={`menu-item ${isActive("/reports") ? "active" : ""}`}
 //               >
@@ -102,7 +102,7 @@
 //                   <span className="menu-text">Reports</span>
 //                 </div>
 //               </li>
-              
+
 //               <li
 //                 className={`menu-item ${isActive("/usermanage") ? "active" : ""
 //                   }`}
@@ -118,7 +118,7 @@
 //                   <span className="menu-text">User Management</span>
 //                 </div>
 //               </li>
-              
+
 //               <li
 //                 className={`menu-item ${isActive("/notifications") ? "active" : ""
 //                   }`}
@@ -155,7 +155,7 @@
 //                   <span className="menu-text">Dashboard</span>
 //                 </div>
 //               </li>
-              
+
 //               <li
 //                 className={`menu-item ${isActive("/my-tasks") ? "active" : ""}`}
 //               >
@@ -170,7 +170,7 @@
 //                   <span className="menu-text">My Tasks</span>
 //                 </div>
 //               </li>
-              
+
 //               <li
 //                 className={`menu-item ${isActive("/calendar") ? "active" : ""}`}
 //               >
@@ -185,7 +185,7 @@
 //                   <span className="menu-text">Calendar View</span>
 //                 </div>
 //               </li>
-              
+
 //               <li
 //                 className={`menu-item ${isActive("/report-submission") ? "active" : ""
 //                   }`}
@@ -201,7 +201,7 @@
 //                   <span className="menu-text">Report Submission</span>
 //                 </div>
 //               </li>
-              
+
 //               <li
 //                 className={`menu-item ${isActive("/notifications") ? "active" : ""
 //                   }`}
@@ -261,18 +261,18 @@ const Sidebar = ({ collapsed }) => {
       { path: "/task-management", icon: "fa-solid fa-tasks", text: "Task Management" },
       // { path: "/project", icon: "fa-solid fa-diagram-project", text: "Projects" },
       { path: "/emailintegration", icon: "fa-solid fa-chart-line", text: " Email Integration" },
-     
+
       // { path: "/sourcework", icon: "fa-solid fa-chart-line", text: "Resource Workload" },
       // { path: "/action-center", icon: "fa-solid fa-bolt", text: "Action Center" },
       { path: "/reportinganalytics", icon: "fa-solid fa-chart-line", text: "Reporting" },
       // { path: "/auditlog", icon: "fa-solid fa-shield", text: "Audit Logs" },
-      { path: "/attendance", icon: "fa-solid fa-calendar-days", text: "Attendance" },
-      { path: "/shift-allocation", icon: "fa-solid fa-life-ring", text: "Shift Allocation" },
+      // { path: "/attendance", icon: "fa-solid fa-calendar-days", text: "Attendance" },
+      // { path: "/shift-allocation", icon: "fa-solid fa-life-ring", text: "Shift Allocation" },
       { path: "/calendar", icon: "fa-solid fa-calendar", text: "Calendar View" },
       { path: "/usermanage", icon: "fa-solid fa-users-gear", text: "User Management" },
       // { path: "/role-permission", icon: "fa-brands fa-critical-role", text: "Role & Permission" },
       // { path: "/collaboration", icon: "fa-solid fa-comments", text: "Chat Room" },
-       { path: "/notificationalerts", icon: "fa-solid fa-chart-line", text: "Notifications & Alerts" },
+      { path: "/notifications", icon: "fa-solid fa-chart-line", text: "Notifications & Alerts" },
     ],
     Staff: [
       { path: "/manager-dashboard", icon: "fa-solid fa-compass", text: "Dashboard" },
@@ -285,10 +285,10 @@ const Sidebar = ({ collapsed }) => {
       { path: "/shift-allocation", icon: "fa-solid fa-chart-line", text: "Report Submission" },
       // { path: "/sourcework", icon: "fa-solid fa-chart-line", text: "Resource Workload" },
       // { path: "/collaboration", icon: "fa-solid fa-comments", text: "Chat Room" },
-       { path: "/taskrequest", icon: "fa-solid fa-chart-line", text: "Notifications" },
+      { path: "/taskrequest", icon: "fa-solid fa-chart-line", text: "Notifications" },
       // { path: "/settingpage", icon: "fa-solid fa-gear", text: "Setting" },
-  ]
-};
+    ]
+  };
 
   const currentMenu = menuConfig[role] || [];
 

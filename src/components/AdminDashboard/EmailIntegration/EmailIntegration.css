@@ -1,0 +1,203 @@
+.task-manager-container {
+  height: 100vh;
+  background-color: #f8f9fa;
+  padding: 0;
+}
+
+.sidebar {
+  background-color: #2c3e50;
+  color: white;
+  height: 100vh;
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-header {
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 20px;
+}
+
+.nav-pills .nav-link {
+  color: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-pills .nav-link.active {
+  background-color: #3498db;
+  color: white;
+}
+
+.main-content {
+  padding: 20px;
+  overflow-y: auto;
+  height: 100vh;
+}
+
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.search-box {
+  width: 300px;
+}
+
+.tasks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.task-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+  border-radius: 8px;
+  overflow: hidden;
+  border: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.task-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.task-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.task-description {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+}
+
+.task-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.task-actions-footer {
+  background-color: #f8f9fa;
+  border-top: 1px solid #eee;
+}
+
+.status-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.status-buttons .btn {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.status-badge {
+  text-transform: capitalize;
+}
+
+.assignee-badge {
+  text-transform: capitalize;
+  font-weight: normal;
+}
+
+.email-item {
+  cursor: pointer;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.email-item:hover {
+  background-color: #f8f9fa;
+}
+
+.email-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.email-preview {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+}
+
+.attachments-list {
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+  padding: 10px;
+  background-color: #f8f9fa;
+}
+
+.attachment-item {
+  padding: 5px;
+  border-bottom: 1px solid #eee;
+}
+
+.attachment-item:last-child {
+  border-bottom: none;
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+.no-tasks {
+  text-align: center;
+  padding: 50px 0;
+}
+
+.empty-state-img {
+  width: 200px;
+  opacity: 0.7;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    height: auto;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  
+  .main-content {
+    height: auto;
+  }
+  
+  .content-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .search-box {
+    width: 100%;
+    margin-top: 10px;
+  }
+  
+  .tasks-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -15,7 +15,6 @@ import ResourceManagement from "./components/AdminDashboard/ResourceManagement/R
 import ProjectSupportPortal from "./components/AdminDashboard/ProjectSupport/ProjectSupport";
 import SettingsPage from "./components/AdminDashboard/Setting/Setting";
 import ProfileAcc from "./components/AdminDashboard/ProfileAcc/ProfileAcc";
-import AuditLog from "./components/AdminDashboard/AuthLog/AuditLog";
 import QAManagement from "./components/AdminDashboard/QAManagement/QAManagement";
 import TimeTracker from "./components/AdminDashboard/TimeTracker/TimeTracker";
 import ReportingAnalytics from "./components/AdminDashboard/ReportingAnalytics/ReportingAnalytics";
@@ -41,7 +40,9 @@ import AuthLayout from "./layout/authLayout";
 import MainLayout from "./layout/MainLayout";
 import ManagerTask from "./components/ProjectManager/ManagerTask/ManagerTask";
 import ShiftAllocation from "./components/ProjectManager/ShiftAllocation/ShiftAllocation";
-import MainDashboard from "./components/AdminDashboard/AdminDashboard/MainDashboard";
+import EmailIntegration from "./components/AdminDashboard/EmailIntegration/EmailIntegration";
+import Dashboard from "./components/AdminDashboard/AdminDashboard/Dashboard";
+import Notifications from "./components/AdminDashboard/Notifications/Notifications";
 
 function App() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -74,10 +75,11 @@ function App() {
           />
         }
       >
-        <Route path="/admin-dashboard" element={<MainDashboard />} />
+        <Route path="/admin-dashboard" element={<Dashboard />} />
         <Route path="/calendar" element={<Calander />} />
         <Route path="/attendance" element={<Attendance />} />
-
+   <Route path="/emailintegration" element={<EmailIntegration />} />
+    <Route path="/notifications" element={<Notifications />} />
         <Route path="/task-management" element={<TaskManagement />} />
         <Route path="/calendar" element={<Calander />} />
         <Route path="/usermanage" element={<UserManagement />} />
@@ -85,7 +87,6 @@ function App() {
         <Route path="/projectsupport" element={<ProjectSupportPortal />} />
         <Route path="/settingpage" element={<SettingsPage />} />
         <Route path="/profile" element={<ProfileAcc />} />
-        <Route path="/auditlog" element={<AuditLog />} />
         <Route path="/timetracker" element={<TimeTracker />} />
         <Route path="/reportinganalytics" element={<ReportingAnalytics />} />
         <Route
