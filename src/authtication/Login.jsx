@@ -56,7 +56,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="login-page">
+    <div className="login-page ">
       <div className="login-container row">
         {/* Left Panel */}
         <div className="col-md-6 login-left d-flex justify-content-center align-items-center">

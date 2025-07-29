@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(to right, #dce7fa, #b8cffa); /* Light logo-based background */
+  background: linear-gradient(to right, #dce7fa, #d3e0fa); /* Light logo-based background */
   animation: fadeIn 1s ease-in;
   padding: 2rem;
 }
