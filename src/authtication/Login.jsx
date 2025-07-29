@@ -62,13 +62,13 @@ const LoginPage = () => {
         <div className="col-md-6 login-left d-flex justify-content-center align-items-center">
           <div className="login-left-content">
             <img
-              src="https://ik.imagekit.io/43o9qlnbg/Eminoids%20-%20Logo_W.png"
+              src="https://i.postimg.cc/7hwsfwW3/Screenshot-20250728-133647-Adobe-Acrobat-removebg-preview.png"
               alt="Omega Tax & Services Logo"
               className="login-logo"
-              style={{ width: "220px", height: "auto", marginBottom: "24px" }}
+              style={{ width: "250px", height: "120px", marginBottom: "24px" }}
             />
-            <h1 className="text-white">Welcome to Omega</h1>
-            <p className="fw-bold text-strong">Your partner in financial clarity & compliance.</p>
+            <h1 className="text-dark">Welcome to Omega</h1>
+            <p className="fw-bold text-strong text-secondary">Your partner in financial clarity & compliance.</p>
           </div>
         </div>
 
