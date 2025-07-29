@@ -286,7 +286,7 @@ const Sidebar = ({ collapsed }) => {
       // { path: "/sourcework", icon: "fa-solid fa-chart-line", text: "Resource Workload" },
       // { path: "/collaboration", icon: "fa-solid fa-comments", text: "Chat Room" },
        { path: "/taskrequest", icon: "fa-solid fa-chart-line", text: "Notifications" },
-      { path: "/settingpage", icon: "fa-solid fa-gear", text: "Setting" },
+      // { path: "/settingpage", icon: "fa-solid fa-gear", text: "Setting" },
   ]
 };
 
