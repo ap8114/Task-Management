@@ -56,7 +56,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="login-page ">
+    <div className="login-page">
       <div className="login-container row">
         {/* Left Panel */}
         <div className="col-md-6 login-left d-flex justify-content-center align-items-center">
@@ -78,26 +78,25 @@ const LoginPage = () => {
         </div>
 
         {/* Right Panel */}
-        <div className="col-md-6 login-right d-flex justify-content-center align-items-center">
-          <div className="login-form-container">
-            <form className="login-form" onSubmit={handleSubmit}>
-              <h4 className="login-form-title">
+       <div className="col-md-6 d-flex justify-content-center align-items-center">
+          <div className="p-4 shadow rounded-4 bg-white" style={{ width: '100%', maxWidth: 400 }}>
+            <form className="w-100" onSubmit={handleSubmit}>
+              <h4 className="text-center fw-bold text-primary mb-2">
                 Omega Tax & Services
-                <br />
-                <span className="text-muted">Secure Login Portal</span>
               </h4>
+              <p className="text-center text-muted mb-4">Secure Login Portal</p>
 
               {error && (
-                <div className="alert alert-danger" role="alert">
+                <div className="alert alert-danger py-1" role="alert">
                   {error}
                 </div>
               )}
 
-              <div className="login-input-group">
-                <FontAwesomeIcon icon={faEnvelope} className="login-input-icon " />
+              <div className="position-relative mb-3">
+                <FontAwesomeIcon icon={faEnvelope} className="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" />
                 <input
                   type="text"
-                  className="form-control login-input px-5"
+                  className="form-control ps-5"
                   placeholder="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -105,27 +104,27 @@ const LoginPage = () => {
                 />
               </div>
 
-              <div className="login-input-group">
-                <FontAwesomeIcon icon={faLock} className="login-input-icon" />
+              <div className="position-relative mb-3">
+                <FontAwesomeIcon icon={faLock} className="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" />
                 <input
                   type={showPassword ? "text" : "password"}
-                  className="form-control login-input px-5"
+                  className="form-control ps-5 pe-5"
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
                 <span
-                  className="password-toggle-icon"
+                  className="position-absolute top-50 end-0 translate-middle-y me-3 text-muted"
+                  style={{ cursor: 'pointer' }}
                   onClick={() => setShowPassword(!showPassword)}
-                  style={{ cursor: "pointer" }}
                 >
                   <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
                 </span>
               </div>
 
-              {/* Role Selection Buttons */}
-              <div className="d-flex flex-wrap justify-content-center mt-3 gap-2">
+              {/* Role selection */}
+              <div className="d-flex justify-content-center gap-2 mb-3">
                 {Object.keys(roleCredentials).map((r) => (
                   <button
                     type="button"
@@ -140,15 +139,18 @@ const LoginPage = () => {
 
               <button
                 type="submit"
-                className="btn login-submit-btn mt-3"
+                className="btn w-100 text-white fw-semibold"
+                style={{
+                  background: 'linear-gradient(to right, #1e3c72, #2a5298)',
+                }}
                 disabled={isLoading}
               >
                 {isLoading ? "LOGGING IN..." : "LOG IN"}
               </button>
 
-              <div className="text-center mt-3">
-                <p className="text-muted">Omega Tax & Services — Version 1.0</p>
-              </div>
+              <p className="text-center text-muted mt-3 mb-0" style={{ fontSize: '0.9rem' }}>
+                Omega Tax & Services — Version 1.0
+              </p>
             </form>
           </div>
         </div>
