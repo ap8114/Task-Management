@@ -67,8 +67,13 @@ const LoginPage = () => {
               className="login-logo"
               style={{ width: "250px", height: "120px", marginBottom: "24px" }}
             />
-            <h1 className="text-dark">Welcome to Omega</h1>
-            <p className="fw-bold text-strong text-secondary">Your partner in financial clarity & compliance.</p>
+   <h1 className="text-dark">Welcome to Omega</h1>
+<p className="fw-bold text-strong text-secondary">
+  Tax Accounting & Consulting Group, Inc — Financial clarity starts here.
+</p>
+
+
+
           </div>
         </div>
 
@@ -89,10 +94,10 @@ const LoginPage = () => {
               )}
 
               <div className="login-input-group">
-                <FontAwesomeIcon icon={faEnvelope} className="login-input-icon" />
+                <FontAwesomeIcon icon={faEnvelope} className="login-input-icon " />
                 <input
                   type="text"
-                  className="form-control login-input"
+                  className="form-control login-input px-5"
                   placeholder="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -104,7 +109,7 @@ const LoginPage = () => {
                 <FontAwesomeIcon icon={faLock} className="login-input-icon" />
                 <input
                   type={showPassword ? "text" : "password"}
-                  className="form-control login-input"
+                  className="form-control login-input px-5"
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
