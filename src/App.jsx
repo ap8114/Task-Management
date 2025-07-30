@@ -28,7 +28,7 @@ import Profile from "./Profile/Profile";
 
 function App() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  
+
 
   const toggleSidebar = () => setIsSidebarCollapsed((prev) => !prev);
   const menusidebarcollaps = () => setIsSidebarCollapsed(true);
@@ -63,11 +63,11 @@ function App() {
         <Route path="/emailintegration" element={<EmailIntegration />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/task-management" element={<TaskManagement />} />
-         <Route path="/reports" element={<Reports />} />
+        <Route path="/reports" element={<Reports />} />
         <Route path="/usermanage" element={<UserManagement />} />
 
-{/* Profile */}
- <Route path="/profile" element={<Profile />} />
+        {/* Profile */}
+        <Route path="/profile" element={<Profile />} />
 
         {/*staff dashbaord  project */}
         <Route path="/staff-dashboard" element={<StaffDashboard />} />
