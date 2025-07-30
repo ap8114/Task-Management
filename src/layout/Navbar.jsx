@@ -74,54 +74,7 @@ const Navbar = ({ toggleSidebar }) => {
           {/* Right Side Content */}
           <div className="d-flex align-items-center ms-auto gap-2 gap-md-3 flex-shrink-0">
 
-            {/* User Status - Mobile View */}
-            <div className="d-md-none d-flex align-items-center gap-2">
-              <span className="text-white fw-semibold small">
-                {userFullName.split(' ')[0]} {/* Show only first name on mobile */}
-              </span>
-              <span className={userStatus === "Available" ? "text-success" : "text-secondary"}>
-                {userStatus}
-              </span>
-              {userRole === "Team Member" && (
-                <div className="form-check form-switch m-0">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    id="mobileStatusSwitch"
-                    checked={userStatus === "Available"}
-                    onChange={e => {
-                      if (e.target.checked) {
-                        if (isOnBreak) {
-                          endBreak();
-                        } else {
-                          setUserStatus('Available');
-                          setShowOverlay(false);
-                        }
-                      } else {
-                        if (breakTimeRemaining > 0) {
-                          setShowStatusModal(true);
-                        } else {
-                          alert('You have exhausted your break limit for today.');
-                        }
-                      }
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-
-         
-
             {/* Notification Bell - Hidden on mobile */}
-            <a
-              className="btn btn-link text-black p-2 d-none d-md-block"
-              href="#"
-              style={{ fontSize: "22px", textDecoration: "none" }}
-              aria-label="Notifications"
-            >
-              <i className="fa-regular fa-bell" style={{fontSize:"x-large"}}></i>
-            </a>
-
             {/* Profile Dropdown */}
             <div className="dropdown">
               <button
@@ -158,12 +111,6 @@ const Navbar = ({ toggleSidebar }) => {
                     <Link className="dropdown-item py-2" to="/profile">
                       <i className="fa fa-user me-2"></i>
                       Profile
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item py-2" to="/changepassword">
-                      <i className="fa fa-lock me-2"></i>
-                      Change Password
                     </Link>
                   </li>
                   <li>
