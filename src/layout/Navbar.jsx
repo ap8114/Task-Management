@@ -2,43 +2,13 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const Navbar = ({ toggleSidebar }) => {
-  const [isLoggedOut, setIsLoggedOut] = useState(false);
-  const userFullName = 'John Naveen Prince';
-  const userRole = 'Team Member';
   const totalBreakLimit = 60;
   const [userStatus, setUserStatus] = useState('Available');
-  const [showStatusModal, setShowStatusModal] = useState(false);
-  const [showBreakConfirmation, setShowBreakConfirmation] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
   const [isOnBreak, setIsOnBreak] = useState(false);
   const [breakStartTime, setBreakStartTime] = useState(null);
   const [totalBreakUsed, setTotalBreakUsed] = useState(0);
-  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
-
-  const breakTimeRemaining = Math.max(totalBreakLimit - totalBreakUsed, 0);
-
-  const startBreakTimer = () => {
-    setBreakStartTime(new Date());
-  };
-
-  const endBreak = () => {
-    if (breakStartTime) {
-      const now = new Date();
-      const diffMs = now - breakStartTime;
-      const diffMins = Math.floor(diffMs / 60000);
-      setTotalBreakUsed((prev) => Math.min(prev + diffMins, totalBreakLimit));
-    }
-    setUserStatus('Available');
-    setShowOverlay(false);
-    setIsOnBreak(false);
-    setBreakStartTime(null);
-  };
-
-  const pauseTimeTracking = () => {
-    console.log('Time tracking paused.');
-  };
-
   const [role, setRole] = useState("");
   useEffect(() => {
     const userRole = localStorage.getItem("userRole");
@@ -128,12 +98,6 @@ const Navbar = ({ toggleSidebar }) => {
           </div>
         </div>
       </nav>
-
-    
-
-    
-
-  
     </>
   );
 };
