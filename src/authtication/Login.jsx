@@ -69,7 +69,7 @@ const LoginPage = () => {
             />
    <h1 className="text-dark">Welcome to Omega</h1>
 <p className="fw-bold text-strong text-secondary">
-  Tax Accounting & Consulting Group, Inc — Financial clarity starts here.
+  Tax Accounting & Consulting Group, Inc.
 </p>
 
 
