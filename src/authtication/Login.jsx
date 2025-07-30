@@ -81,8 +81,8 @@ const LoginPage = () => {
        <div className="col-md-6 d-flex justify-content-center align-items-center">
           <div className="p-4 shadow rounded-4 bg-white" style={{ width: '100%', maxWidth: 400 }}>
             <form className="w-100" onSubmit={handleSubmit}>
-              <h4 className="text-center fw-bold text-primary mb-2">
-                Omega Tax & Services
+              <h4 className="text-center gradient-heading mb-2">
+                Omega Tax & Accounting
               </h4>
               <p className="text-center text-muted mb-4">Secure Login Portal</p>
 

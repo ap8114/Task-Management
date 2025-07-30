@@ -28,6 +28,7 @@ import Profile from "./Profile/Profile";
 
 function App() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  
 
   const toggleSidebar = () => setIsSidebarCollapsed((prev) => !prev);
   const menusidebarcollaps = () => setIsSidebarCollapsed(true);

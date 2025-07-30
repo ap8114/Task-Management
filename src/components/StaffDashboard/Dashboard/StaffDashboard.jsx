@@ -199,7 +199,6 @@ function StaffDashboard() {
       {/* Charts Row */}
       <div className="row">
         {/* Personal Performance Chart */}
-
         <div className="col-lg-6 mb-4">
           <div className="card h-100 border-0 shadow-sm">
             <div className="card-header bg-white border-0">
@@ -214,15 +213,27 @@ function StaffDashboard() {
               {performanceData.map((day, index) => {
                 const height = (day.tasks / maxTasks) * 200; // max 200px height
                 return (
-                  <div key={index} className="text-center">
+                  <div 
+                    key={index} 
+                    className="text-center"
+                    style={{ cursor: "pointer" }}
+                  >
                     <div
                       style={{
                         height: `${height}px`,
                         width: "25px",
-                        backgroundColor: "#0d6efd",
+                        backgroundColor: "#4bc0c0",
                         marginBottom: "6px",
                         borderRadius: "6px 6px 0 0",
-                        transition: "height 0.4s",
+                        transition: "all 0.3s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = "#36a2a2";
+                        e.target.style.transform = "scale(1.05)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = "#4bc0c0";
+                        e.target.style.transform = "scale(1)";
                       }}
                     ></div>
                     <div className="small fw-bold">{day.tasks}</div>
@@ -234,8 +245,7 @@ function StaffDashboard() {
           </div>
         </div>
 
-        {/* Invoice Summary Chart */}
-
+        {/* Task Status Breakdown Chart */}
         <div className="col-lg-6 mb-4">
           <div className="card h-100 border-0 shadow-sm">
             <div className="card-header bg-white border-0">
@@ -249,7 +259,19 @@ function StaffDashboard() {
                   height: "200px",
                   borderRadius: "50%",
                   background:
-                    "conic-gradient(#ffc107 0% 40%, #0d6efd 40% 80%, #198754 80% 100%)",
+                    `conic-gradient(#ff6384 0% ${(pendingTasks/tasks.length)*100}%, #4bc0c0 ${(pendingTasks/tasks.length)*100}% ${((pendingTasks+completedTasks)/tasks.length)*100}%, #9966ff ${((pendingTasks+completedTasks)/tasks.length)*100}% 100%)`,
+                  transition: "all 0.3s ease",
+                  cursor: "pointer",
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = "scale(1.05)";
+                  e.target.style.background = 
+                    `conic-gradient(#ff4569 0% ${(pendingTasks/tasks.length)*100}%, #36a2a2 ${(pendingTasks/tasks.length)*100}% ${((pendingTasks+completedTasks)/tasks.length)*100}%, #8a5cff ${((pendingTasks+completedTasks)/tasks.length)*100}% 100%)`;
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = "scale(1)";
+                  e.target.style.background = 
+                    `conic-gradient(#ff6384 0% ${(pendingTasks/tasks.length)*100}%, #4bc0c0 ${(pendingTasks/tasks.length)*100}% ${((pendingTasks+completedTasks)/tasks.length)*100}%, #9966ff ${((pendingTasks+completedTasks)/tasks.length)*100}% 100%)`;
                 }}
               >
                 <div
@@ -270,7 +292,7 @@ function StaffDashboard() {
                     style={{
                       width: "15px",
                       height: "15px",
-                      background: "#ffc107",
+                      background: "#ff6384",
                     }}
                   ></div>
                   <span>Pending - {pendingTasks}</span>
@@ -281,7 +303,7 @@ function StaffDashboard() {
                     style={{
                       width: "15px",
                       height: "15px",
-                      background: "#0d6efd",
+                      background: "#4bc0c0",
                     }}
                   ></div>
                   <span>Completed - {completedTasks}</span>
@@ -292,7 +314,7 @@ function StaffDashboard() {
                     style={{
                       width: "15px",
                       height: "15px",
-                      background: "#198754",
+                      background: "#9966ff",
                     }}
                   ></div>
                   <span>Overdue - {overdueTasks}</span>

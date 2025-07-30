@@ -31,12 +31,12 @@ const Navbar = ({ toggleSidebar }) => {
               }}
             />
             <button
-              className="btn btn-link text-white p-0 d-lg-none"
+              className="btn btn-link text-dark p-0 d-lg-none mt-2"
               onClick={toggleSidebar}
               style={{ fontSize: "20px", textDecoration: "none" }}
               aria-label="Toggle Sidebar"
             >
-              <i className="fa fa-bars"></i>
+              <i className="fa fa-bars fs-4 p-2 "></i>
             </button>
           </div>
 

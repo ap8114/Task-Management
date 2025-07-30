@@ -3,47 +3,126 @@ import { Container, Row, Col, Card, Table, Button, Modal, Form, Badge, Dropdown 
 
 const UserManagement = () => {
   // Sample initial data
-  const initialUsers = [
-    {
-      id: 1,
-      name: 'John Doe',
-      email: 'john@example.com',
-      role: 'Admin',
-      permissions: {
-        canView: true,
-        canEdit: true,
-        canDelete: true,
-        onlyAssignedTasks: false
-      },
-      assignedTasks: ['Dashboard Redesign', 'User Management']
+const initialUsers = [
+  {
+    id: 1,
+    name: 'Angela Hongo',
+    email: 'angela.hongo@example.com',
+    role: 'Office Manager',
+    permissions: {
+      canView: true,
+      canEdit: true,
+      canDelete: true,
+      onlyAssignedTasks: false
     },
-    {
-      id: 2,
-      name: 'Jane Smith',
-      email: 'jane@example.com',
-      role: 'Editor',
-      permissions: {
-        canView: true,
-        canEdit: true,
-        canDelete: false,
-        onlyAssignedTasks: true
-      },
-      assignedTasks: ['Content Update']
+    assignedTasks: ['Scheduling', 'Client Coordination']
+  },
+  {
+    id: 2,
+    name: 'Mary White',
+    email: 'mary.white@example.com',
+    role: 'Staff Accountant',
+    permissions: {
+      canView: true,
+      canEdit: true,
+      canDelete: false,
+      onlyAssignedTasks: true
     },
-    {
-      id: 3,
-      name: 'Mike Johnson',
-      email: 'mike@example.com',
-      role: 'Viewer',
-      permissions: {
-        canView: true,
-        canEdit: false,
-        canDelete: false,
-        onlyAssignedTasks: true
-      },
-      assignedTasks: ['Report Generation']
-    }
-  ];
+    assignedTasks: ['Tax Filing', 'Ledger Management']
+  },
+  {
+    id: 3,
+    name: 'James Bass',
+    email: 'james.bass@example.com',
+    role: 'Staff Bookkeeper',
+    permissions: {
+      canView: true,
+      canEdit: true,
+      canDelete: false,
+      onlyAssignedTasks: true
+    },
+    assignedTasks: ['Daily Transactions', 'Bank Reconciliation']
+  },
+  {
+    id: 4,
+    name: 'Theresa Brizzi',
+    email: 'theresa.brizzi@example.com',
+    role: 'Staff Accountant',
+    permissions: {
+      canView: true,
+      canEdit: true,
+      canDelete: false,
+      onlyAssignedTasks: true
+    },
+    assignedTasks: ['Payroll', 'Financial Statements']
+  },
+  {
+    id: 5,
+    name: 'Irene NDang',
+    email: 'irene.ndang@example.com',
+    role: 'Staff CPA',
+    permissions: {
+      canView: true,
+      canEdit: true,
+      canDelete: true,
+      onlyAssignedTasks: false
+    },
+    assignedTasks: ['Client Audits', 'Tax Planning']
+  },
+  {
+    id: 6,
+    name: 'Desiray Owens',
+    email: 'desiray.owens@example.com',
+    role: 'Student Intern',
+    permissions: {
+      canView: true,
+      canEdit: false,
+      canDelete: false,
+      onlyAssignedTasks: true
+    },
+    assignedTasks: ['Document Filing', 'Data Entry']
+  },
+  {
+    id: 7,
+    name: 'Lyniah Chappel',
+    email: 'lyniah.chappel@example.com',
+    role: 'Student Intern',
+    permissions: {
+      canView: true,
+      canEdit: false,
+      canDelete: false,
+      onlyAssignedTasks: true
+    },
+    assignedTasks: ['Research Tasks', 'Support Staff']
+  },
+  {
+    id: 8,
+    name: 'Additional Staff #1',
+    email: 'staff1@example.com',
+    role: 'Support Staff',
+    permissions: {
+      canView: true,
+      canEdit: false,
+      canDelete: false,
+      onlyAssignedTasks: true
+    },
+    assignedTasks: ['Assisting Team']
+  },
+  {
+    id: 9,
+    name: 'Additional Staff #2',
+    email: 'staff2@example.com',
+    role: 'Support Staff',
+    permissions: {
+      canView: true,
+      canEdit: false,
+      canDelete: false,
+      onlyAssignedTasks: true
+    },
+    assignedTasks: ['Filing', 'Support']
+  }
+];
+
 
   const allTasks = [
     'Dashboard Redesign',

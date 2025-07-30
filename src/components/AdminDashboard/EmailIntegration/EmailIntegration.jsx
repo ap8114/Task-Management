@@ -143,7 +143,7 @@ const EmailIntegration = () => {
       <header className="email-integration-header mb-4">
         <Row className="align-items-center">
           <Col xs={8} sm={6} md={6} lg={6}>
-            <h2 className="mb-0 fw-bold text-primary">Task Manager Pro</h2>
+            <h3 className="mb-4 fw-bold text-dark">Email Integration</h3>
             <p className="text-muted mb-0 d-none d-sm-block">Convert emails to tasks and manage your workflow</p>
           </Col>
           <Col xs={4} sm={6} md={6} lg={6} className="text-end">
