@@ -1,68 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Table, Form, Badge } from "react-bootstrap";
-
-const initialTasks = [
-  {
-    id: 1,
-    title: "Design Landing Page",
-    description: "Create a responsive landing page for the new product.",
-    status: "In Progress",
-    startDate: "2025-07-25",
-    dueDate: "2025-08-01",
-    comments: "Make sure to include mobile support.",
-    file: "landing_design.pdf",
-    timer: 90,
-    invoiceAmount: 5000,
-  },
-  {
-    id: 2,
-    title: "API Integration",
-    description: "Integrate payment API for subscriptions.",
-    status: "Pending",
-    startDate: "2025-07-28",
-    dueDate: "2025-08-05",
-    comments: "Use the official SDK.",
-    file: "api_doc.pdf",
-    timer: 60,
-    invoiceAmount: 8000,
-  },
-  {
-    id: 3,
-    title: "Content Upload",
-    description: "Upload blogs and videos to CMS.",
-    status: "Completed",
-    startDate: "2025-07-20",
-    dueDate: "2025-07-27",
-    comments: "Use optimized formats.",
-    file: "content.zip",
-    timer: 120,
-    invoiceAmount: 3000,
-  },
-  {
-    id: 4,
-    title: "Bug Fixing",
-    description: "Resolve issues from QA testing.",
-    status: "On Hold",
-    startDate: "2025-07-22",
-    dueDate: "2025-07-30",
-    comments: "Prioritize login issues.",
-    file: "buglist.xlsx",
-    timer: 45,
-    invoiceAmount: 2500,
-  },
-  {
-    id: 5,
-    title: "UI Improvements",
-    description: "Refine UI based on feedback.",
-    status: "In Progress",
-    startDate: "2025-07-21",
-    dueDate: "2025-08-02",
-    comments: "Focus on navbar and footer.",
-    file: "feedback_notes.txt",
-    timer: 100,
-    invoiceAmount: 6000,
-  },
-];
+import axios from "axios";
+import axiosInstance from "../../../Utilities/axiosInstance";
 
 const statusVariant = {
   "Pending": "warning",
@@ -72,7 +11,29 @@ const statusVariant = {
 };
 
 const MyTasks = () => {
-  const [tasks, setTasks] = useState(initialTasks);
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Replace this with your actual user ID retrieval logic
+  const userId = localStorage.getItem(user_id); // This should come from your auth system or context
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await axiosInstance.get(
+          `emailTask/getEmailTaskById/${userId}`
+        );
+        setTasks(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchTasks();
+  }, [userId]);
 
   const handleStatusChange = (id, newStatus) => {
     setTasks(prev =>
@@ -90,13 +51,20 @@ const MyTasks = () => {
     );
   };
 
+  if (loading) {
+    return <div className="text-center py-5">Loading tasks...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center py-5 text-danger">Error: {error}</div>;
+  }
+
   return (
     <div className="container-fluid py-3">
-           <div className="">
-          <h3 className="fw-bold text-dark"> My Tasks</h3>
-        </div>
+      <div className="">
+        <h3 className="fw-bold text-dark">My Tasks</h3>
+      </div>
       <div className="card border-0 shadow-sm">
-     
         <div className="card-body">
           <div className="table-responsive table-gradient-bg">
             <Table hover className="mb-0">
@@ -114,7 +82,7 @@ const MyTasks = () => {
                 </tr>
               </thead>
               <tbody>
-                {tasks.map((task, index) => (
+                {tasks?.map((task, index) => (
                   <tr key={task.id}>
                     <td>{index + 1}</td>
                     <td className="fw-semibold">{task.title}</td>

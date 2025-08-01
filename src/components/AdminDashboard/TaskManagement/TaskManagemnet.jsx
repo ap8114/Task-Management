@@ -1,64 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Form, Table, Badge, Container, Card, Row, Col, Toast } from 'react-bootstrap';
+import { Modal, Button, Form, Table, Badge, Container, Card, Row, Col } from 'react-bootstrap';
+import Swal from 'sweetalert2';
 import './TaskManagement.css';
 import axiosInstance from '../../../Utilities/axiosInstance';
 
 const TaskManagement = () => {
   // State for tasks and users
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: 'Complete tax filing',
-      description: 'File annual tax returns for client XYZ',
-      status: 'In Progress',
-      assignedTo: 'john@example.com',
-      dueDate: '2023-12-15',
-      priority: 'High',
-      taskType: 'Personal Tax Preparation',
-      invoiceAmount: 500
-    },
-    {
-      id: 2,
-      title: 'QuickBooks setup',
-      description: 'Initial setup for new client ABC Corp',
-      status: 'To Do',
-      assignedTo: 'sarah@example.com',
-      dueDate: '2023-11-30',
-      priority: 'Medium',
-      taskType: 'Initial QB Setup',
-      invoiceAmount: 1200
-    },
-    {
-      id: 3,
-      title: 'Audit financial statements',
-      description: 'Review and audit Q3 financials',
-      status: 'Done',
-      assignedTo: 'mike@example.com',
-      dueDate: '2023-10-15',
-      priority: 'Critical',
-      taskType: 'Audit Services',
-      invoiceAmount: 2500
-    }
-  ]);
-  
-  const [users, setUsers] = useState([
-    // { id: 1, email: 'admin@example.com', name: 'Admin User', role: 'Admin', permissions: { view: true, edit: true, delete: true, assignedOnly: false } },
-    // { id: 2, email: 'john@example.com', name: 'John Smith', role: 'Manager', permissions: { view: true, edit: true, delete: false, assignedOnly: false } },
-    // { id: 3, email: 'sarah@example.com', name: 'Sarah Johnson', role: 'Developer', permissions: { view: true, edit: true, delete: false, assignedOnly: true } },
-    // { id: 4, email: 'mike@example.com', name: 'Mike Brown', role: 'Developer', permissions: { view: true, edit: false, delete: false, assignedOnly: true } },
-  ]);
+  const [tasks, setTasks] = useState([]);
+  const [users, setUsers] = useState([]);
 
   // Form states
   const [showTaskModal, setShowTaskModal] = useState(false);
-  const [showUserModal, setShowUserModal] = useState(false);
   const [currentTask, setCurrentTask] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterPriority, setFilterPriority] = useState('All');
-  const [currentUserRole, setCurrentUserRole] = useState('Admin');
 
   // Form data
   const [taskForm, setTaskForm] = useState({
@@ -72,18 +28,6 @@ const TaskManagement = () => {
     invoiceAmount: ''
   });
 
-  const [userForm, setUserForm] = useState({
-    email: '',
-    name: '',
-    role: 'Developer',
-    permissions: {
-      view: true,
-      edit: false,
-      delete: false,
-      assignedOnly: false
-    }
-  });
-
   // Fetch tasks from API
   const fetchTasks = async () => {
     try {
@@ -91,12 +35,23 @@ const TaskManagement = () => {
       setTasks(res.data.data || []);
     } catch (error) {
       console.error("Failed to fetch tasks:", error);
-      showToastMessage('Failed to fetch tasks');
+      showAlert('error', 'Failed to fetch tasks');
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const response = await axiosInstance.get("user/getAllUsers");
+      setUsers(response.data.data || []);
+    } catch (error) {
+      console.error("Failed to fetch users", error);
+      showAlert('error', 'Failed to fetch users');
     }
   };
 
   useEffect(() => {
     fetchTasks();
+    fetchUsers();
   }, []);
 
   // Helper functions
@@ -114,47 +69,20 @@ const TaskManagement = () => {
     setCurrentTask(null);
   };
 
-  const resetUserForm = () => {
-    setUserForm({
-      email: '',
-      name: '',
-      role: 'Developer',
-      permissions: {
-        view: true,
-        edit: false,
-        delete: false,
-        assignedOnly: false
-      }
+  const showAlert = (icon, title, text = '') => {
+    Swal.fire({
+      icon,
+      title,
+      text,
+      timer: 3000,
+      showConfirmButton: false
     });
-    setCurrentUser(null);
-  };
-
-  const showToastMessage = (message) => {
-    setToastMessage(message);
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
   };
 
   // Form handlers
   const handleTaskFormChange = (e) => {
     const { name, value } = e.target;
     setTaskForm(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleUserFormChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    if (name.startsWith('permissions.')) {
-      const permissionField = name.split('.')[1];
-      setUserForm(prev => ({
-        ...prev,
-        permissions: {
-          ...prev.permissions,
-          [permissionField]: type === 'checkbox' ? checked : value
-        }
-      }));
-    } else {
-      setUserForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
-    }
   };
 
   // Task operations
@@ -164,8 +92,8 @@ const TaskManagement = () => {
       title: task.title || '',
       description: task.description || '',
       status: task.status || 'To Do',
-      assignedTo: task.assignedTo || '',
-      dueDate: task.dueDate || '',
+      assignedTo: task.assignedTo?.id || task.assignedTo || '',
+      dueDate: task.dueDate ? task.dueDate.split('T')[0] : '',
       priority: task.priority || 'Medium',
       taskType: task.taskType || '',
       invoiceAmount: task.invoiceAmount || ''
@@ -177,7 +105,7 @@ const TaskManagement = () => {
     const { title, description, status, priority, assignedTo, dueDate, taskType, invoiceAmount } = taskForm;
 
     if (!title || !assignedTo || !taskType) {
-      showToastMessage("Title, Task Type and Assigned To are required!");
+      showAlert('error', 'Validation Error', 'Title, Task Type and Assigned To are required!');
       return;
     }
 
@@ -186,117 +114,66 @@ const TaskManagement = () => {
       description,
       status,
       priority,
-      assignedTo,
-      dueDate,
+      assignedTo: parseInt(assignedTo),
       taskType,
-      invoiceAmount: parseFloat(invoiceAmount) || 0
+      invoiceAmount: parseFloat(invoiceAmount) || 0,
+      dueDate: dueDate ? `${dueDate}T00:00:00.000Z` : null
     };
 
     try {
       let response;
       if (currentTask) {
         // Update existing task
-        const updatedTasks = tasks.map(task => 
-          task.id === currentTask.id ? { ...task, ...payload } : task
-        );
-        setTasks(updatedTasks);
-        showToastMessage("Task updated successfully!");
+        response = await axiosInstance.put(`tasks/updateTask/${currentTask.id}`, payload);
+        setTasks(tasks.map(task => 
+          task.id === currentTask.id ? response.data.data : task
+        ));
+        showAlert('success', 'Success', 'Task updated successfully!');
       } else {
         // Add new task
-        const newTask = {
-          id: Math.max(...tasks.map(t => t.id), 0) + 1,
-          ...payload
-        };
-        setTasks([...tasks, newTask]);
-        showToastMessage("Task created successfully!");
+        response = await axiosInstance.post("tasks/addTask", payload);
+        setTasks([...tasks, response.data.data]);
+        showAlert('success', 'Success', 'Task created successfully!');
       }
       
       setShowTaskModal(false);
       resetTaskForm();
     } catch (error) {
       console.error("Error:", error);
-      showToastMessage("Server error. Please try again.");
+      showAlert('error', 'Error', 'Server error. Please try again.');
     }
   };
 
   const handleDeleteTask = async (taskId) => {
-    if (window.confirm('Are you sure you want to delete this task?')) {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (result.isConfirmed) {
       try {
+        await axiosInstance.delete(`tasks/deleteTask/${taskId}`);
         setTasks(tasks.filter(task => task.id !== taskId));
-        showToastMessage('Task deleted successfully!');
+        showAlert('success', 'Deleted!', 'Task has been deleted.');
       } catch (error) {
         console.error("Error:", error);
-        showToastMessage("Failed to delete task");
+        showAlert('error', 'Failed to delete task');
       }
-    }
-  };
-
-   useEffect(()=>{
-fetchUser()
-  },[])
-
-  const fetchUser =async()=>{
-try {
-  const response = await axiosInstance.get("user/getAllUsers");
-  console.log(response);
-  
-  setUsers(response.data.data);
-
-} catch (error) {
-  console.error("field to fetch data", error)
-}
-  }
-  // User operations
-  const handleEditUser = (user) => {
-    setCurrentUser(user);
-    setUserForm({
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      permissions: {
-        view: user.permissions.view,
-        edit: user.permissions.edit,
-        delete: user.permissions.delete,
-        assignedOnly: user.permissions.assignedOnly
-      }
-    });
-    setShowUserModal(true);
-  };
-
-  const handleSaveUser = () => {
-    if (currentUser) {
-      const updatedUsers = users.map(user =>
-        user.id === currentUser.id ? { ...user, ...userForm } : user
-      );
-      setUsers(updatedUsers);
-      showToastMessage('User updated successfully!');
-    } else {
-      const newUser = {
-        id: Math.max(...users.map(u => u.id), 0) + 1,
-        ...userForm
-      };
-      setUsers([...users, newUser]);
-      showToastMessage('User added successfully!');
-    }
-    setShowUserModal(false);
-    resetUserForm();
-  };
-
-  const handleDeleteUser = (userId) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      setUsers(users.filter(user => user.id !== userId));
-      showToastMessage('User deleted successfully!');
     }
   };
 
   // Filter and utility functions
   const filteredTasks = tasks.filter(task => {
-    const title = task.title || '';
-    const description = task.description || '';
-    const status = task.status || '';
-    const priority = task.priority || '';
-    const assignedTo = task.assignedTo || '';
-    const taskType = task.taskType || '';
+    const title = task?.title || '';
+    const description = task?.description || '';
+    const status = task?.status || '';
+    const priority = task?.priority || '';
+    const taskType = task?.taskType || '';
 
     const matchesSearch = title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -304,11 +181,7 @@ try {
     const matchesStatus = filterStatus === 'All' || status === filterStatus;
     const matchesPriority = filterPriority === 'All' || priority === filterPriority;
 
-    const currentUserObj = users.filter(u => u.role === currentUserRole);
-    const assignedOnlyFilter = currentUserObj?.permissions?.assignedOnly ?
-      assignedTo === currentUserObj.email : true;
-
-    return matchesSearch && matchesStatus && matchesPriority && assignedOnlyFilter;
+    return matchesSearch && matchesStatus && matchesPriority;
   });
 
   const getPriorityBadge = (priority) => {
@@ -330,16 +203,16 @@ try {
     }
   };
 
-  const hasPermission = (permission) => {
-    const user = users.find(u => u.role === currentUserRole);
-    return user ? user.permissions[permission] : false;
-  };
-
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD'
     }).format(amount || 0);
+  };
+
+  const getUserName = (userId) => {
+    const user = users.find(u => u.id === userId);
+    return user ? user.name : 'N/A';
   };
 
   return (
@@ -441,18 +314,16 @@ try {
                 </Col>
 
                 <Col xs={12} md={4} className="text-md-end">
-                  { (
-                    <Button
-                      variant="primary"
-                      onClick={() => {
-                        resetTaskForm();
-                        setShowTaskModal(true);
-                      }}
-                      className="w-100 w-md-auto"
-                    >
-                      <i className="bi bi-plus-circle me-2"></i>Add New Task
-                    </Button>
-                  )}
+                  <Button
+                    variant="primary"
+                    onClick={() => {
+                      resetTaskForm();
+                      setShowTaskModal(true);
+                    }}
+                    className="w-100 w-md-auto"
+                  >
+                    <i className="bi bi-plus-circle me-2"></i>Add New Task
+                  </Button>
                 </Col>
               </Row>
             </Card.Body>
@@ -483,8 +354,8 @@ try {
                           <td>{task.title || 'N/A'}</td>
                           <td>{task.taskType || 'N/A'}</td>
                           <td>{task.description || 'N/A'}</td>
-                          <td>{users.find(u => u.email === task.assignedTo)?.name || task.assignedTo || 'N/A'}</td>
-                          <td>{task.dueDate || 'N/A'}</td>
+                          <td>{getUserName(task.assignedTo)}</td>
+                          <td>{task.dueDate ? task.dueDate.split('T')[0] : 'N/A'}</td>
                           <td>{formatCurrency(task.invoiceAmount)}</td>
                           <td>
                             <Badge bg={getPriorityBadge(task.priority)}>
@@ -497,25 +368,21 @@ try {
                             </Badge>
                           </td>
                           <td>
-                       
-                              <Button
-                                variant="outline-primary"
-                                size="sm"
-                                className="me-2"
-                                onClick={() => handleEditTask(task)}
-                              >
-                                <i className="bi bi-pencil"></i>
-                              </Button>
-                         
-                           
-                              <Button
-                                variant="outline-danger"
-                                size="sm"
-                                onClick={() => handleDeleteTask(task.id)}
-                              >
-                                <i className="bi bi-trash"></i>
-                              </Button>
-                           
+                            <Button
+                              variant="outline-primary"
+                              size="sm"
+                              className="me-2"
+                              onClick={() => handleEditTask(task)}
+                            >
+                              <i className="bi bi-pencil"></i>
+                            </Button>
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              onClick={() => handleDeleteTask(task.id)}
+                            >
+                              <i className="bi bi-trash"></i>
+                            </Button>
                           </td>
                         </tr>
                       ))
@@ -650,7 +517,7 @@ try {
                       >
                         <option value="">Select user</option>
                         {users.map(user => (
-                          <option key={user.id} value={user.email}>{user.name}</option>
+                          <option key={user.id} value={user.id}>{user.name}</option>
                         ))}
                       </Form.Select>
                     </Form.Group>
@@ -680,19 +547,6 @@ try {
               </Button>
             </Modal.Footer>
           </Modal>
-
-          {/* Toast Notification */}
-          <Toast 
-            show={showToast} 
-            onClose={() => setShowToast(false)} 
-            className="position-fixed bottom-0 end-0 m-3"
-            bg="success"
-          >
-            <Toast.Header>
-              <strong className="me-auto">Notification</strong>
-            </Toast.Header>
-            <Toast.Body className="text-white">{toastMessage}</Toast.Body>
-          </Toast>
         </Container>
       </div>
     </div>
