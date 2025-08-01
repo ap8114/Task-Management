@@ -70,7 +70,7 @@ const Dashboard = () => {
 
     const getStatusBadge = (status) => {
         if (!status) return 'secondary';
-        
+
         switch (status.toLowerCase()) {
             case 'completed':
                 return 'success';
@@ -90,11 +90,11 @@ const Dashboard = () => {
         if (!dashboardData) return { tasksByCategory: null, completionChart: null };
 
         // Group tasks by category (Tax Services vs Accounting Services)
-        const taxServicesCount = dashboardData.tasks.filter(task => 
+        const taxServicesCount = dashboardData.tasks.filter(task =>
             taskTypeCategories['Tax Services'].includes(task.taskType)
         ).length;
 
-        const accountingServicesCount = dashboardData.tasks.filter(task => 
+        const accountingServicesCount = dashboardData.tasks.filter(task =>
             taskTypeCategories['Accounting Services'].includes(task.taskType)
         ).length;
 
