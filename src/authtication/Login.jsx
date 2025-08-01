@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope, faLock, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
 import "./Login.css";
+import BaseUrl from "../Utilities/BaseUrl";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -18,7 +20,7 @@ const LoginPage = () => {
     Staff: { email: "staff@example.com", password: "staff@123" },
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -29,24 +31,37 @@ const LoginPage = () => {
 
     setIsLoading(true);
 
-    setTimeout(() => {
-      const creds = roleCredentials[role];
-      if (email === creds.email && password === creds.password) {
-        localStorage.setItem("authToken", "dummy-token");
+    try {
+      const response = await axios.post(
+        `${BaseUrl}user/login`,
+        {
+          email,
+          password
+        }
+      );
+
+      console.log(response);
+      
+
+      if (response?.data?.status) {
+        localStorage.setItem("authToken", response.data.data.token);
         localStorage.setItem("userRole", role);
         localStorage.setItem("userEmail", email);
         localStorage.setItem("userData", JSON.stringify({ role, email }));
 
-        if (role === "Admin") {
+        if (role == "Admin") {
           navigate("/admin-dashboard");
-        } else if (role === "Staff") {
+        } else if (role == "Staff") {
           navigate("/staff-dashboard");
         }
       } else {
-        setError("Invalid email or password.");
+        setError(response.data.message || "Invalid email or password.");
       }
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed. Please try again.");
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleRoleSelect = (selectedRole) => {
@@ -67,18 +82,15 @@ const LoginPage = () => {
               className="login-logo"
               style={{ width: "250px", height: "120px", marginBottom: "24px" }}
             />
-   <h1 className="text-dark">Welcome to Omega</h1>
-<p className="fw-bold text-strong text-secondary">
-  Tax Accounting & Consulting Group, Inc.
-</p>
-
-
-
+            <h1 className="text-dark">Welcome to Omega</h1>
+            <p className="fw-bold text-strong text-secondary">
+              Tax Accounting & Consulting Group, Inc.
+            </p>
           </div>
         </div>
 
         {/* Right Panel */}
-       <div className="col-md-6 d-flex justify-content-center align-items-center">
+        <div className="col-md-6 d-flex justify-content-center align-items-center">
           <div className="p-4 shadow rounded-4 bg-white" style={{ width: '100%', maxWidth: 400 }}>
             <form className="w-100" onSubmit={handleSubmit}>
               <h4 className="text-center gradient-heading mb-2">
