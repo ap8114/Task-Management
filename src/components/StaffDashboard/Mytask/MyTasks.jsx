@@ -23,7 +23,7 @@ const MyTasks = () => {
         setError(null);
         
         const response = await axiosInstance.get(
-          `emailTask/getEmailTaskById/${userId}`
+          `emailTask/getEmailTaskByUserId/${userId}`
         );
         
         console.log("Full API Response:", response); // Debugging
