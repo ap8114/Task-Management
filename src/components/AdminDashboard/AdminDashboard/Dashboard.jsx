@@ -401,7 +401,7 @@ const Dashboard = () => {
             labels: statusData.map(item => item.status || 'Unassigned'),
             datasets: [
                 {
-                    label: 'Tasks by Status',
+                    label: 'Tasks by Type',
                     data: statusData.map(item => item.count),
                     backgroundColor: [
                         'rgba(54, 162, 235, 0.7)',
@@ -540,7 +540,7 @@ const Dashboard = () => {
                 <Col lg={6} md={12} className="mb-4">
                     <Card className="h-100 shadow-sm">
                         <Card.Body>
-                            <h6 className="text-muted mb-3">Tasks by Status</h6>
+                            <h6 className="text-muted mb-3">Tasks by Type</h6>
                             <div style={{ height: '300px' }}>
                                 {tasksByType ? (
                                     <Bar
