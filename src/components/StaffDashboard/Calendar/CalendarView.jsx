@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Button, Dropdown, Table, Badge, Spinner } from "react-bootstrap";
+import { Button, Dropdown, Table, Badge, Spinner, Alert } from "react-bootstrap";
 import moment from "moment";
 import axios from "axios";
+import axiosInstance from "../../../Utilities/axiosInstance";
 
 const CalendarView = () => {
   const [tasks, setTasks] = useState([]);
@@ -10,66 +11,92 @@ const CalendarView = () => {
   const [currentDate, setCurrentDate] = useState(moment());
   const [viewMode, setViewMode] = useState("week"); // 'day', 'week', or 'month'
   const userId = localStorage.getItem("userId");
+
   // Fetch tasks from API
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await axios.get(
-          `https://projectmanagement-backend-production.up.railway.app/api/employeeTask/getEmployeeTaskById/${userId}`
+        setLoading(true);
+        setError(null);
+        
+        const response = await axiosInstance.get(
+          `employeeTask/getEmployeeTaskById/${userId}`
         );
         
-        // Transform API data to match our expected format
-        const transformedTasks = [{
-          id: response.data.data.id,
-          title: response.data.data.title,
-          date: response.data.data.startDateTime.split('T')[0],
-          time: "", 
-          duration: "",
-          status: response.data.data.status,
-          description: response.data.data.description
-        }];
+        console.log("API Response:", response); // Debugging
+        
+        // Handle different response structures
+        let tasksData = [];
+        
+        if (Array.isArray(response?.data?.data)) {
+          // Case 1: Response has data array
+          tasksData = response.data.data;
+        } else if (response?.data?.data && typeof response.data.data === 'object') {
+          // Case 2: Response has single task object
+          tasksData = [response.data.data];
+        } else if (Array.isArray(response?.data)) {
+          // Case 3: Response is directly an array
+          tasksData = response.data;
+        } else if (response?.data && typeof response.data === 'object') {
+          // Case 4: Response is a single task object
+          tasksData = [response.data];
+        }
+        
+        // Transform tasks to expected format
+        const transformedTasks = tasksData.map(task => ({
+          id: task.id,
+          title: task.title || "Untitled Task",
+          date: task.startDateTime ? task.startDateTime.split('T')[0] : moment().format('YYYY-MM-DD'),
+          time: task.startDateTime ? task.startDateTime.split('T')[1].substring(0, 5) : "00:00",
+          duration: task.duration || "N/A",
+          status: task.status || "Pending",
+          description: task.description || "No description available"
+        }));
         
         setTasks(transformedTasks);
-        setLoading(false);
       } catch (err) {
-        setError(err.message);
+        console.error("Error fetching tasks:", err);
+        setError(
+          err.response?.data?.message || 
+          err.message || 
+          "Failed to fetch tasks. Please try again later."
+        );
+        setTasks([]);
+      } finally {
         setLoading(false);
       }
     };
 
-    fetchTasks();
-  }, []);
+    if (userId) {
+      fetchTasks();
+    } else {
+      setError("User ID not found. Please login again.");
+      setLoading(false);
+    }
+  }, [userId]);
 
   // Get tasks for the current view
   const getTasksForView = () => {
-    switch (viewMode) {
-      case "day":
-        return tasks.filter((task) =>
-          moment(task.date).isSame(currentDate, "day")
-        );
-      case "week":
-        return tasks.filter((task) =>
-          moment(task.date).isSame(currentDate, "week")
-        );
-      case "month":
-        return tasks.filter((task) =>
-          moment(task.date).isSame(currentDate, "month")
-        );
-      default:
-        return [];
-    }
+    const viewTasks = tasks.filter(task => {
+      const taskDate = moment(task.date);
+      switch (viewMode) {
+        case "day":
+          return taskDate.isSame(currentDate, "day");
+        case "week":
+          return taskDate.isSame(currentDate, "week");
+        case "month":
+          return taskDate.isSame(currentDate, "month");
+        default:
+          return false;
+      }
+    });
+    return viewTasks;
   };
 
   // Generate days for week view
   const getWeekDays = () => {
     const startOfWeek = currentDate.clone().startOf("week");
-    const days = [];
-
-    for (let i = 0; i < 7; i++) {
-      days.push(startOfWeek.clone().add(i, "days"));
-    }
-
-    return days;
+    return Array.from({ length: 7 }, (_, i) => startOfWeek.clone().add(i, "days"));
   };
 
   // Generate cells for month view
@@ -89,24 +116,20 @@ const CalendarView = () => {
 
   // Change date navigation
   const navigateDate = (direction) => {
-    if (direction === "prev") {
-      setCurrentDate(currentDate.clone().subtract(1, viewMode));
-    } else {
-      setCurrentDate(currentDate.clone().add(1, viewMode));
-    }
+    setCurrentDate(prev => 
+      direction === "prev" 
+        ? prev.clone().subtract(1, viewMode) 
+        : prev.clone().add(1, viewMode)
+    );
   };
 
   // Get status badge color
   const getStatusBadge = (status) => {
     switch (status) {
-      case "Completed":
-        return "success";
-      case "In Progress":
-        return "primary";
-      case "Pending":
-        return "warning";
-      default:
-        return "secondary";
+      case "Completed": return "success";
+      case "In Progress": return "primary";
+      case "Pending": return "warning";
+      default: return "secondary";
     }
   };
 
@@ -122,23 +145,26 @@ const CalendarView = () => {
 
   if (error) {
     return (
-      <div className="alert alert-danger">
-        Error loading tasks: {error}
+      <div className="container py-5">
+        <Alert variant="danger">
+          <Alert.Heading>Error</Alert.Heading>
+          <p>{error}</p>
+          <Button variant="outline-danger" onClick={() => window.location.reload()}>
+            Try Again
+          </Button>
+        </Alert>
       </div>
     );
   }
 
   return (
-    <div className="container-fluid py-3 ">
-      <div className="card border-0 shadow-sm ">
+    <div className="container-fluid py-3">
+      <div className="card border-0 shadow-sm">
         <div className="card-header bg-white border-0">
           <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
-            {/* Title */}
             <h3 className="fw-bold text-dark">My Scheduled Tasks</h3>
 
-            {/* Controls */}
             <div className="d-flex flex-wrap align-items-center gap-2">
-              {/* Previous Button */}
               <Button
                 variant="outline-secondary"
                 size="sm"
@@ -147,7 +173,6 @@ const CalendarView = () => {
                 &lt;
               </Button>
 
-              {/* View Mode Dropdown */}
               <Dropdown>
                 <Dropdown.Toggle variant="light" size="sm" id="view-mode-dropdown">
                   {viewMode.charAt(0).toUpperCase() + viewMode.slice(1)} View
@@ -159,7 +184,6 @@ const CalendarView = () => {
                 </Dropdown.Menu>
               </Dropdown>
 
-              {/* Date Range */}
               <h6 className="mb-0">
                 {viewMode === "month"
                   ? currentDate.format("MMMM YYYY")
@@ -171,7 +195,6 @@ const CalendarView = () => {
                     : currentDate.format("MMMM D, YYYY")}
               </h6>
 
-              {/* Next Button */}
               <Button
                 variant="outline-secondary"
                 size="sm"
@@ -180,7 +203,6 @@ const CalendarView = () => {
                 &gt;
               </Button>
 
-              {/* Today Button */}
               <Button
                 variant="outline-primary"
                 size="sm"
@@ -192,7 +214,7 @@ const CalendarView = () => {
           </div>
         </div>
 
-        <div className="card-body ">
+        <div className="card-body">
           {viewMode === "day" && (
             <div>
               <h6 className="mb-3">{currentDate.format("dddd, MMMM D")}</h6>
@@ -207,22 +229,23 @@ const CalendarView = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {getTasksForView()
-                    .sort((a, b) => a.time.localeCompare(b.time))
-                    .map((task) => (
-                      <tr key={task.id}>
-                        <td>{task.time}</td>
-                        <td>{task.title}</td>
-                        <td>{task.duration} mins</td>
-                        <td>
-                          <Badge bg={getStatusBadge(task.status)}>
-                            {task.status}
-                          </Badge>
-                        </td>
-                        <td>{task.description}</td>
-                      </tr>
-                    ))}
-                  {getTasksForView().length === 0 && (
+                  {getTasksForView().length > 0 ? (
+                    getTasksForView()
+                      .sort((a, b) => a.time.localeCompare(b.time))
+                      .map((task) => (
+                        <tr key={task.id}>
+                          <td>{task.time}</td>
+                          <td>{task.title}</td>
+                          <td>{task.duration}</td>
+                          <td>
+                            <Badge bg={getStatusBadge(task.status)}>
+                              {task.status}
+                            </Badge>
+                          </td>
+                          <td>{task.description}</td>
+                        </tr>
+                      ))
+                  ) : (
                     <tr>
                       <td colSpan={5} className="text-center text-muted">
                         No tasks scheduled for this day
@@ -263,8 +286,7 @@ const CalendarView = () => {
                             {dayTasks.map((task) => (
                               <div
                                 key={task.id}
-                                className={`p-1 mb-1 rounded text-white bg-${getStatusBadge(task.status)
-                                  }`}
+                                className={`p-1 mb-1 rounded text-white bg-${getStatusBadge(task.status)}`}
                               >
                                 <small>
                                   {task.time} - {task.title}

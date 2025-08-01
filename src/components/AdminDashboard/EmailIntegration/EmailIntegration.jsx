@@ -83,13 +83,7 @@ const EmailIntegration = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const employees = [
-    { id: 1, name: "Alex Johnson" },
-    { id: 2, name: "Sam Rivera" },
-    { id: 3, name: "Taylor Chen" },
-    { id: 4, name: "Jordan Smith" },
-    { id: 5, name: "Casey Wong" },
-  ];
+  const [employees, setEmployees] = useState([]);
 
   const taskTypes = [
     "description",
@@ -107,8 +101,8 @@ const EmailIntegration = () => {
       setIsTaskLoading(true);
       setTaskError(null);
       try {
-        const response = await axios.get(
-          "https://projectmanagement-backend-production.up.railway.app/api/emailTask/getAllEmailTasks",
+        const response = await axiosInstance.get(
+          "emailTask/getAllEmailTasks",
           {
             headers: {
               "Authorization": `Bearer ${localStorage.getItem("authToken")}`,
@@ -142,6 +136,27 @@ const EmailIntegration = () => {
       }
     };
     fetchTasks();
+  }, []);
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const response = await axiosInstance.get(
+          "user/getAllUsers",
+          {
+            headers: {
+              "Authorization": `Bearer ${localStorage.getItem("authToken")}`,
+            },
+          }
+        );
+        if (response.data.status === "success") {
+          setEmployees(response.data.data);
+        }
+      } catch (err) {
+        setEmployees([]);
+      }
+    };
+    fetchEmployees();
   }, []);
 
   const handleConvertToTask = (email) => {
@@ -187,8 +202,8 @@ const EmailIntegration = () => {
       });
 
       // Axios POST API call
-      const response = await axios.post(
-        "https://projectmanagement-backend-production.up.railway.app/api/emailTask/createEmailTask",
+      const response = await axiosInstance.post(
+        "emailTask/createEmailTask",
         formData,
         {
           headers: {
@@ -260,9 +275,24 @@ const EmailIntegration = () => {
     );
   };
 
-  const handleDeleteTask = (taskId) => {
-    setTasks(tasks.filter((task) => task.id !== taskId));
-  };
+ const handleDeleteTask = async (taskId) => {
+  const originalTasks = tasks;
+  try {
+    setIsLoading(true);
+    setTasks(tasks.filter(task => task.id !== taskId));
+    
+    await axiosInstance.delete(`emailTask/deleteEmailTask/${taskId}`, {
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("authToken")}`,
+      },
+    });
+  } catch (err) {
+    setTasks(originalTasks);
+    setError("Error deleting task. Please try again.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const filteredTasks = tasks.filter((task) => {
     const matchesSearch =
@@ -692,23 +722,6 @@ const EmailIntegration = () => {
                   />
                 </Form.Group>
               </Col>
-              <Col md={4}>
-                <Form.Group>
-                  <Form.Label>
-                    Priority <span className="text-danger">*</span>
-                  </Form.Label>
-                  <Form.Select
-                    value={priority}
-                    onChange={(e) => setPriority(e.target.value)}
-                    className="border-primary"
-                    required
-                  >
-                    <option value="High">High Priority</option>
-                    <option value="Medium">Medium Priority</option>
-                    <option value="Low">Low Priority</option>
-                  </Form.Select>
-                </Form.Group>
-              </Col>
             </Row>
 
             <Form.Group className="mb-3">
@@ -828,11 +841,13 @@ const EmailIntegration = () => {
                     required
                   >
                     <option value="">Select team member</option>
-                    {employees.map((emp) => (
-                      <option key={emp.id} value={emp.id}>
-                        {emp.name}
-                      </option>
-                    ))}
+                    {employees
+                      .filter((emp) => emp.name && emp.name.trim() !== "")
+                      .map((emp) => (
+                        <option key={emp.id} value={emp.id}>
+                          {emp.name}
+                        </option>
+                      ))}
                   </Form.Select>
                 </Form.Group>
               </Col>
