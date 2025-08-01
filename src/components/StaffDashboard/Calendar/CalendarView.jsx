@@ -20,7 +20,7 @@ const CalendarView = () => {
         setError(null);
         
         const response = await axiosInstance.get(
-          `employeeTask/getEmployeeTaskById/${userId}`
+          `employeeTask/getEmployeeTaskByUserId/${userId}`
         );
         
         console.log("API Response:", response); // Debugging
