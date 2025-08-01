@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Button, Card, Alert, Row, Col, Container } from 'react-bootstrap';
 import moment from 'moment';
+import axios from 'axios';
+import axiosInstance from '../../../Utilities/axiosInstance';
 
 const ManualReportSubmission = () => {
   const [formData, setFormData] = useState({
@@ -13,6 +15,30 @@ const ManualReportSubmission = () => {
 
   const [submitted, setSubmitted] = useState(false);
   const [validated, setValidated] = useState(false);
+  const [recentSubmissions, setRecentSubmissions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+
+
+  useEffect(() => {
+    fetchRecentReports();
+  }, []);
+
+  const fetchRecentReports = async () => {
+    try {
+      setLoading(true);
+      const response = await axiosInstance.get("dailyReport/getAllDailyReports");
+      console.log("Api response", response.data.data);
+      
+      setRecentSubmissions(response?.data?.data);
+      setLoading(false);
+    } catch (err) {
+      setError('Failed to fetch recent reports');
+      setLoading(false);
+      console.error('Error fetching reports:', err);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,20 +48,37 @@ const ManualReportSubmission = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const form = e.currentTarget;
 
     if (form.checkValidity()) {
-      console.log('Report submitted:', formData);
-      setSubmitted(true);
-      setFormData({
-        date: moment().format('YYYY-MM-DD'),
-        taskTitle: '',
-        workDone: '',
-        duration: '',
-        issues: ''
-      });
+      try {
+        const reportData = {
+          reportDate: moment(formData.date).format('MM/DD/YYYY'),
+          durationSpent: parseFloat(formData.duration),
+          taskTitle: formData.taskTitle,
+          whatWasDone: formData.workDone,
+          issues: formData.issues || 'No issues reported'
+        };
+
+        await axiosInstance.post("dailyReport/createDailyReport", reportData);
+        
+        setSubmitted(true);
+        setFormData({
+          date: moment().format('YYYY-MM-DD'),
+          taskTitle: '',
+          workDone: '',
+          duration: '',
+          issues: ''
+        });
+        
+        // Refresh the recent submissions
+        await fetchRecentReports();
+      } catch (err) {
+        setError('Failed to submit report');
+        console.error('Error submitting report:', err);
+      }
     }
 
     setValidated(true);
@@ -52,6 +95,12 @@ const ManualReportSubmission = () => {
 
           <Card className="border-0 shadow-sm mb-4">
             <Card.Body>
+              {error && (
+                <Alert variant="danger" onClose={() => setError(null)} dismissible>
+                  {error}
+                </Alert>
+              )}
+              
               {submitted && (
                 <Alert variant="success" onClose={() => setSubmitted(false)} dismissible>
                   Report submitted successfully!
@@ -67,7 +116,7 @@ const ManualReportSubmission = () => {
                       name="date"
                       value={formData.date}
                       onChange={handleChange}
-                      required
+                    
                     />
                     <Form.Control.Feedback type="invalid">
                       Please select a date
@@ -84,7 +133,7 @@ const ManualReportSubmission = () => {
                       placeholder="e.g. 2.5"
                       value={formData.duration}
                       onChange={handleChange}
-                      required
+                     
                     />
                     <Form.Control.Feedback type="invalid">
                       Please enter time spent
@@ -100,7 +149,7 @@ const ManualReportSubmission = () => {
                     placeholder="What task were you working on?"
                     value={formData.taskTitle}
                     onChange={handleChange}
-                    required
+                  
                   />
                   <Form.Control.Feedback type="invalid">
                     Please enter a task title
@@ -116,7 +165,7 @@ const ManualReportSubmission = () => {
                     placeholder="Describe what you accomplished..."
                     value={formData.workDone}
                     onChange={handleChange}
-                    required
+           
                   />
                   <Form.Control.Feedback type="invalid">
                     Please describe the work done
@@ -136,8 +185,8 @@ const ManualReportSubmission = () => {
                 </Form.Group>
 
                 <div className="d-flex justify-content-end">
-                  <Button variant="primary" type="submit">
-                    Submit Report
+                  <Button variant="primary" type="submit" disabled={loading}>
+                    {loading ? 'Submitting...' : 'Submit Report'}
                   </Button>
                 </div>
               </Form>
@@ -149,38 +198,46 @@ const ManualReportSubmission = () => {
               <h5 className="mb-0">Recent Submissions</h5>
             </Card.Header>
             <Card.Body>
-              <div className="table-responsive">
-                <table className="table table-hover mb-0">
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Task</th>
-                      <th>Duration</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>{moment().format('MMM D, YYYY')}</td>
-                      <td>API Integration</td>
-                      <td>3.5 hours</td>
-                      <td><span className="badge bg-success">Submitted</span></td>
-                    </tr>
-                    <tr>
-                      <td>{moment().subtract(1, 'day').format('MMM D, YYYY')}</td>
-                      <td>Bug Fixing</td>
-                      <td>2 hours</td>
-                      <td><span className="badge bg-success">Submitted</span></td>
-                    </tr>
-                    <tr>
-                      <td>{moment().subtract(2, 'days').format('MMM D, YYYY')}</td>
-                      <td>UI Improvements</td>
-                      <td>4 hours</td>
-                      <td><span className="badge bg-success">Submitted</span></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+              {loading ? (
+                <div className="text-center py-4">
+                  <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                  </div>
+                </div>
+              ) : error ? (
+                <Alert variant="danger">{error}</Alert>
+              ) : (
+                <div className="table-responsive">
+                  <table className="table table-hover mb-0">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Task</th>
+                        <th>Duration</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {recentSubmissions.length > 0 ? (
+                        recentSubmissions?.map((report, index) => (
+                          <tr key={index}>
+                            <td>{moment(report.reportDate, 'MM/DD/YYYY').format('MMM D, YYYY')}</td>
+                            <td>{report.taskTitle}</td>
+                            <td>{report.durationSpent} hours</td>
+                            <td><span className="badge bg-success">Submitted</span></td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="4" className="text-center py-3 text-muted">
+                            No reports found
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </Card.Body>
           </Card>
         </Col>
