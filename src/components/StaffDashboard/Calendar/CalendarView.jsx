@@ -1,88 +1,44 @@
 import React, { useState, useEffect } from "react";
-import { Button, Dropdown, Table, Badge } from "react-bootstrap";
+import { Button, Dropdown, Table, Badge, Spinner } from "react-bootstrap";
 import moment from "moment";
+import axios from "axios";
 
 const CalendarView = () => {
-  // Sample tasks data with 5 additional random tasks
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Client Meeting",
-      date: "2025-07-15",
-      time: "10:00",
-      duration: 60,
-      status: "Scheduled",
-    },
-    {
-      id: 2,
-      title: "Project Deadline",
-      date: "2025-07-20",
-      time: "15:00",
-      duration: 120,
-      status: "Pending",
-    },
-    {
-      id: 3,
-      title: "Team Sync",
-      date: "2025-07-15",
-      time: "14:30",
-      duration: 30,
-      status: "Completed",
-    },
-    {
-      id: 4,
-      title: "Code Review",
-      date: "2025-07-18",
-      time: "11:00",
-      duration: 90,
-      status: "Scheduled",
-    },
-    // Additional random tasks
-    {
-      id: 5,
-      title: "UX Design Review",
-      date: "2025-07-16",
-      time: "13:00",
-      duration: 45,
-      status: "Scheduled",
-    },
-    {
-      id: 6,
-      title: "Sprint Planning",
-      date: "2025-07-17",
-      time: "09:30",
-      duration: 90,
-      status: "Pending",
-    },
-    {
-      id: 7,
-      title: "Client Demo",
-      date: "2025-07-19",
-      time: "14:00",
-      duration: 60,
-      status: "Scheduled",
-    },
-    {
-      id: 8,
-      title: "Documentation Update",
-      date: "2025-07-21",
-      time: "16:00",
-      duration: 120,
-      status: "Pending",
-    },
-    {
-      id: 9,
-      title: "Retrospective Meeting",
-      date: "2025-07-22",
-      time: "11:30",
-      duration: 60,
-      status: "Completed",
-    },
-  ]);
-
-  // Calendar state
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [currentDate, setCurrentDate] = useState(moment());
   const [viewMode, setViewMode] = useState("week"); // 'day', 'week', or 'month'
+  const userId = localStorage.getItem("userId");
+  // Fetch tasks from API
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await axios.get(
+          `https://projectmanagement-backend-production.up.railway.app/api/employeeTask/getEmployeeTaskById/${userId}`
+        );
+        
+        // Transform API data to match our expected format
+        const transformedTasks = [{
+          id: response.data.data.id,
+          title: response.data.data.title,
+          date: response.data.data.startDateTime.split('T')[0],
+          time: "", 
+          duration: "",
+          status: response.data.data.status,
+          description: response.data.data.description
+        }];
+        
+        setTasks(transformedTasks);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchTasks();
+  }, []);
 
   // Get tasks for the current view
   const getTasksForView = () => {
@@ -145,7 +101,7 @@ const CalendarView = () => {
     switch (status) {
       case "Completed":
         return "success";
-      case "Scheduled":
+      case "In Progress":
         return "primary";
       case "Pending":
         return "warning";
@@ -153,6 +109,24 @@ const CalendarView = () => {
         return "secondary";
     }
   };
+
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="alert alert-danger">
+        Error loading tasks: {error}
+      </div>
+    );
+  }
 
   return (
     <div className="container-fluid py-3 ">
@@ -218,7 +192,6 @@ const CalendarView = () => {
           </div>
         </div>
 
-
         <div className="card-body ">
           {viewMode === "day" && (
             <div>
@@ -230,6 +203,7 @@ const CalendarView = () => {
                     <th style={{ width: "30%" }}>Task</th>
                     <th style={{ width: "20%" }}>Duration</th>
                     <th style={{ width: "15%" }}>Status</th>
+                    <th style={{ width: "15%" }}>Description</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -245,11 +219,12 @@ const CalendarView = () => {
                             {task.status}
                           </Badge>
                         </td>
+                        <td>{task.description}</td>
                       </tr>
                     ))}
                   {getTasksForView().length === 0 && (
                     <tr>
-                      <td colSpan={4} className="text-center text-muted">
+                      <td colSpan={5} className="text-center text-muted">
                         No tasks scheduled for this day
                       </td>
                     </tr>

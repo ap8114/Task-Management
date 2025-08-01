@@ -124,7 +124,7 @@ const TaskManagement = () => {
       let response;
       if (currentTask) {
         // Update existing task
-        response = await axiosInstance.put(`tasks/updateTask/${currentTask.id}`, payload);
+        response = await axiosInstance.patch(`tasks/updateTask/${currentTask.id}`, payload);
         setTasks(tasks.map(task => 
           task.id === currentTask.id ? response.data.data : task
         ));
@@ -137,7 +137,9 @@ const TaskManagement = () => {
       }
       
       setShowTaskModal(false);
+
       resetTaskForm();
+        fetchTasks();
     } catch (error) {
       console.error("Error:", error);
       showAlert('error', 'Error', 'Server error. Please try again.');
@@ -245,7 +247,7 @@ const TaskManagement = () => {
                     <Card.Title>Completed</Card.Title>
                     <i className="fa-solid fa-circle-check fs-3 text-success"></i>
                   </div>
-                  <Card.Text className="display-6">{tasks.filter(t => t.status === 'Done').length}</Card.Text>
+                  <Card.Text className="display-6">{tasks?.filter(t => t?.status === 'Done').length}</Card.Text>
                 </Card.Body>
               </Card>
             </Col>
@@ -257,7 +259,7 @@ const TaskManagement = () => {
                     <Card.Title>In Progress</Card.Title>
                     <i className="fa-solid fa-spinner fs-3 text-warning"></i>
                   </div>
-                  <Card.Text className="display-6">{tasks.filter(t => t.status === 'In Progress').length}</Card.Text>
+                  <Card.Text className="display-6">{tasks?.filter(t => t?.status === 'In Progress').length}</Card.Text>
                 </Card.Body>
               </Card>
             </Col>
@@ -269,7 +271,7 @@ const TaskManagement = () => {
                     <Card.Title>Pending</Card.Title>
                     <i className="fa-solid fa-hourglass-half fs-3 text-danger"></i>
                   </div>
-                  <Card.Text className="display-6">{tasks.filter(t => t.status === 'To Do').length}</Card.Text>
+                  <Card.Text className="display-6">{tasks?.filter(t => t?.status === 'To Do').length}</Card.Text>
                 </Card.Body>
               </Card>
             </Col>
@@ -350,21 +352,21 @@ const TaskManagement = () => {
                   <tbody>
                     {filteredTasks.length > 0 ? (
                       filteredTasks.map(task => (
-                        <tr key={task.id}>
-                          <td>{task.title || 'N/A'}</td>
-                          <td>{task.taskType || 'N/A'}</td>
-                          <td>{task.description || 'N/A'}</td>
-                          <td>{getUserName(task.assignedTo)}</td>
-                          <td>{task.dueDate ? task.dueDate.split('T')[0] : 'N/A'}</td>
-                          <td>{formatCurrency(task.invoiceAmount)}</td>
+                        <tr key={task?.id}>
+                          <td>{task?.title || 'N/A'}</td>
+                          <td>{task?.taskType || 'N/A'}</td>
+                          <td>{task?.description || 'N/A'}</td>
+                          <td>{getUserName(task?.assignedTo)}</td>
+                          <td>{task?.dueDate ? task?.dueDate.split('T')[0] : 'N/A'}</td>
+                          <td>{formatCurrency(task?.invoiceAmount)}</td>
                           <td>
-                            <Badge bg={getPriorityBadge(task.priority)}>
-                              {task.priority || 'N/A'}
+                            <Badge bg={getPriorityBadge(task?.priority)}>
+                              {task?.priority || 'N/A'}
                             </Badge>
                           </td>
                           <td>
-                            <Badge bg={getStatusBadge(task.status)}>
-                              {task.status || 'N/A'}
+                            <Badge bg={getStatusBadge(task?.status)}>
+                              {task?.status || 'N/A'}
                             </Badge>
                           </td>
                           <td>

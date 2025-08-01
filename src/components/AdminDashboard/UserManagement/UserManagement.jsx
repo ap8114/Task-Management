@@ -126,6 +126,7 @@ const UserManagement = () => {
       }
       handleClose();
       setError(null);
+      fetchUsers();
     } catch (error) {
       console.error("Failed to save user", error);
       setError("Failed to save user. Please try again.");

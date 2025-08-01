@@ -46,7 +46,10 @@ const TaskManagementCalendar = () => {
         
         // Fetch employees
         const employeesResponse = await axiosInstance.get("user/getAllUsers");
-        setEmployees(employeesResponse.data?.data || []);
+        setEmployees(employeesResponse?.data?.data || []);
+
+        console.log(employeesResponse);
+        
         
         // Fetch tasks
         const tasksResponse = await axiosInstance.get("employeeTask/getAllEmployeeTasks");
@@ -104,53 +107,77 @@ const TaskManagementCalendar = () => {
   };
 
   // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    try {
-      const taskData = {
-        title: formData.title,
-        description: formData.description,
-        assignedTo: formData.assignedTo,
-        startDateTime: moment(formData.start).format('YYYY-MM-DD'),
-        endDateTime: moment(formData.end).format('YYYY-MM-DD'),
-        status: formData.status
-      };
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  try {
+    const taskData = {
+      title: formData.title,
+      description: formData.description,
+      assignedTo: formData.assignedTo,
+      startDateTime: moment(formData.start).toISOString(),
+      endDateTime: moment(formData.end).toISOString(),
+      status: formData.status
+    };
 
-      if (selectedTask) {
-        // Update existing task
-        await axiosInstance.patch(`employeeTask/updateEmployeeTask/${selectedTask.id}`, taskData);
-        const updatedTasks = tasks.map(task =>
-          task.id === selectedTask.id ? { 
-            ...task, 
-            ...taskData,
-            start: new Date(taskData.startDateTime),
-            end: new Date(taskData.endDateTime),
-            employee: taskData.assignedTo ? taskData.assignedTo.toString() : ''
-          } : task
-        );
-        setTasks(updatedTasks);
-      } else {
-        // Add new task
-        const response = await axiosInstance.post("employeeTask/addEmployeeTask", taskData);
+    if (selectedTask) {
+      // Update existing task
+      await axiosInstance.patch(`employeeTask/updateEmployeeTask/${selectedTask.id}`, taskData);
+      const updatedTasks = tasks.map(task =>
+        task.id === selectedTask.id ? { 
+          ...task, 
+          ...taskData,
+          start: new Date(taskData.startDateTime),
+          end: new Date(taskData.endDateTime),
+          employee: taskData.assignedTo ? taskData.assignedTo.toString() : ''
+        } : task
+      );
+      setTasks(updatedTasks);
+    } else {
+      // Add new task
+      const response = await axiosInstance.post("employeeTask/addEmployeeTask", taskData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.data && response.data.data) {
         const newTask = {
-          ...response.data?.data,
-          id: response.data?.data?._id || Math.random().toString(36).substr(2, 9),
-          start: response.data?.data?.startDateTime ? new Date(response.data.data.startDateTime) : new Date(),
-          end: response.data?.data?.endDateTime ? new Date(response.data.data.endDateTime) : new Date(),
-          employee: response.data?.data?.assignedTo ? response.data.data.assignedTo.toString() : '',
-          status: response.data?.data?.status || 'Pending'
+          ...response.data.data,
+          id: response.data.data._id,
+          title: response.data.data.title,
+          start: new Date(response.data.data.startDateTime),
+          end: new Date(response.data.data.endDateTime),
+          employee: response.data.data.assignedTo,
+          status: response.data.data.status || 'Pending'
         };
         setTasks([...tasks, newTask]);
       }
-      
-      setShowModal(false);
-      setSelectedTask(null);
-    } catch (error) {
-      console.error('Error saving task:', error);
     }
-  };
-
+    
+    setShowModal(false);
+    setSelectedTask(null);
+    setFormData({
+      title: '',
+      description: '',
+      start: new Date(),
+      end: new Date(),
+      assignedTo: '',
+      status: 'Pending'
+    });
+  } catch (error) {
+    console.error('Error saving task:', error);
+    if (error.response) {
+      console.error('Response data:', error.response.data);
+      console.error('Response status:', error.response.status);
+      console.error('Response headers:', error.response.headers);
+    } else if (error.request) {
+      console.error('Request:', error.request);
+    } else {
+      console.error('Error message:', error.message);
+    }
+  }
+};
   // Handle slot selection (for adding new events)
   const handleSelectSlot = (slotInfo) => {
     setSelectedTask(null);
@@ -377,7 +404,7 @@ const TaskManagementCalendar = () => {
                   >
                     <option value="">Select Employee</option>
                     {employees.map(emp => (
-                      <option key={emp._id} value={emp._id}>{emp.name}</option>
+                      <option key={emp.id} value={emp.id}>{emp.name}</option>
                     ))}
                   </Form.Select>
                 </Form.Group>
