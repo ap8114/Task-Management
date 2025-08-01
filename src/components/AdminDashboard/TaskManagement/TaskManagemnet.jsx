@@ -42,10 +42,10 @@ const TaskManagement = () => {
   ]);
   
   const [users, setUsers] = useState([
-    { id: 1, email: 'admin@example.com', name: 'Admin User', role: 'Admin', permissions: { view: true, edit: true, delete: true, assignedOnly: false } },
-    { id: 2, email: 'john@example.com', name: 'John Smith', role: 'Manager', permissions: { view: true, edit: true, delete: false, assignedOnly: false } },
-    { id: 3, email: 'sarah@example.com', name: 'Sarah Johnson', role: 'Developer', permissions: { view: true, edit: true, delete: false, assignedOnly: true } },
-    { id: 4, email: 'mike@example.com', name: 'Mike Brown', role: 'Developer', permissions: { view: true, edit: false, delete: false, assignedOnly: true } },
+    // { id: 1, email: 'admin@example.com', name: 'Admin User', role: 'Admin', permissions: { view: true, edit: true, delete: true, assignedOnly: false } },
+    // { id: 2, email: 'john@example.com', name: 'John Smith', role: 'Manager', permissions: { view: true, edit: true, delete: false, assignedOnly: false } },
+    // { id: 3, email: 'sarah@example.com', name: 'Sarah Johnson', role: 'Developer', permissions: { view: true, edit: true, delete: false, assignedOnly: true } },
+    // { id: 4, email: 'mike@example.com', name: 'Mike Brown', role: 'Developer', permissions: { view: true, edit: false, delete: false, assignedOnly: true } },
   ]);
 
   // Form states
@@ -231,6 +231,21 @@ const TaskManagement = () => {
     }
   };
 
+   useEffect(()=>{
+fetchUser()
+  },[])
+
+  const fetchUser =async()=>{
+try {
+  const response = await axiosInstance.get("user/getAllUsers");
+  console.log(response);
+  
+  setUsers(response.data.data);
+
+} catch (error) {
+  console.error("field to fetch data", error)
+}
+  }
   // User operations
   const handleEditUser = (user) => {
     setCurrentUser(user);
@@ -289,7 +304,7 @@ const TaskManagement = () => {
     const matchesStatus = filterStatus === 'All' || status === filterStatus;
     const matchesPriority = filterPriority === 'All' || priority === filterPriority;
 
-    const currentUserObj = users.find(u => u.role === currentUserRole);
+    const currentUserObj = users.filter(u => u.role === currentUserRole);
     const assignedOnlyFilter = currentUserObj?.permissions?.assignedOnly ?
       assignedTo === currentUserObj.email : true;
 
@@ -426,7 +441,7 @@ const TaskManagement = () => {
                 </Col>
 
                 <Col xs={12} md={4} className="text-md-end">
-                  {hasPermission('edit') && (
+                  { (
                     <Button
                       variant="primary"
                       onClick={() => {
@@ -482,7 +497,7 @@ const TaskManagement = () => {
                             </Badge>
                           </td>
                           <td>
-                            {hasPermission('edit') && (
+                       
                               <Button
                                 variant="outline-primary"
                                 size="sm"
@@ -491,8 +506,8 @@ const TaskManagement = () => {
                               >
                                 <i className="bi bi-pencil"></i>
                               </Button>
-                            )}
-                            {hasPermission('delete') && (
+                         
+                           
                               <Button
                                 variant="outline-danger"
                                 size="sm"
@@ -500,7 +515,7 @@ const TaskManagement = () => {
                               >
                                 <i className="bi bi-trash"></i>
                               </Button>
-                            )}
+                           
                           </td>
                         </tr>
                       ))

@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
-import { Table, Button, Form, Modal, Navbar, Container, Card, ProgressBar } from 'react-bootstrap';
+import { Table, Button, Form, Modal, Navbar, Container, Card, ProgressBar , Spinner } from 'react-bootstrap';
 import { FaFilePdf, FaFileExcel, FaEnvelope, FaSearch, FaFilter } from 'react-icons/fa';
+import axiosInstance from '../../../Utilities/axiosInstance';
 
 const Reports = () => {
   // Mock data for tasks
+   const [emailData, setEmailData] = useState({
+    recipient: 'admin@company.com',
+    subject: '',
+    message: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
   const initialTasks = [
     {
       id: 1,
@@ -47,11 +56,11 @@ const Reports = () => {
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
-  const [emailData, setEmailData] = useState({
-    recipient: 'admin@company.com',
-    subject: 'Daily Task Report',
-    message: 'Please find attached the daily task report.'
-  });
+  // const [emailData, setEmailData] = useState({
+  //   recipient: 'admin@company.com',
+  //   subject: 'Daily Task Report',
+  //   message: 'Please find attached the daily task report.'
+  // });
 
   // Stats calculation
   const completedTasks = tasks.filter(task => task.status === 'Completed').length;
@@ -72,9 +81,48 @@ const Reports = () => {
     // Actual implementation would use libraries like jsPDF or ExcelJS
   };
 
-  const handleEmailSend = () => {
-    alert(`Report sent to ${emailData.recipient}`);
-    setShowEmailModal(false);
+ const handleEmailSend = async () => {
+    // Validate form
+    if (!emailData.subject.trim() || !emailData.message.trim()) {
+      setError('Subject and message are required');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Prepare the data to match API requirements
+      const payload = {
+        recipient: emailData.recipient === 'admin@company.com' ? 'Project Manager' : 'Client',
+        subject: emailData.subject,
+        message: emailData.message
+      };
+
+      const response = await axiosInstance.post('/email/addEmailReport', payload);
+      
+      if (response.data.status === 'success') {
+        setSuccess(true);
+        // Reset form on success
+        setEmailData({
+          recipient: 'admin@company.com',
+          subject: '',
+          message: ''
+        });
+        // Close modal after 2 seconds
+        setTimeout(() => {
+          setShowEmailModal(false);
+          setSuccess(false);
+        }, 2000);
+      } else {
+        setError(response.data.message || 'Failed to send email');
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+      setError(error.response?.data?.message || 'Failed to send email. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -236,50 +284,83 @@ const Reports = () => {
       </div>
 
       {/* Email Modal */}
-      <Modal show={showEmailModal} onHide={() => setShowEmailModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Email Report</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Recipient</Form.Label>
-              <Form.Select
-                value={emailData.recipient}
-                onChange={(e) => setEmailData({ ...emailData, recipient: e.target.value })}
-              >
-                <option value="admin@company.com">Admin</option>
-                <option value="client@company.com">Client</option>
-              </Form.Select>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Subject</Form.Label>
-              <Form.Control
-                type="text"
-                value={emailData.subject}
-                onChange={(e) => setEmailData({ ...emailData, subject: e.target.value })}
+       <Modal show={showEmailModal} onHide={() => {
+      setShowEmailModal(false);
+      setError(null);
+      setSuccess(false);
+    }}>
+      <Modal.Header closeButton>
+        <Modal.Title>Email Report</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        {error && <Alert variant="danger">{error}</Alert>}
+        {success && <Alert variant="success">Email sent successfully!</Alert>}
+        
+        <Form>
+          <Form.Group className="mb-3">
+            <Form.Label>Recipient</Form.Label>
+            <Form.Select
+              value={emailData.recipient}
+              onChange={(e) => setEmailData({ ...emailData, recipient: e.target.value })}
+              disabled={loading}
+            >
+              <option value="admin@company.com">Admin (Project Manager)</option>
+              <option value="client@company.com">Client</option>
+            </Form.Select>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Subject</Form.Label>
+            <Form.Control
+              type="text"
+              value={emailData.subject}
+              onChange={(e) => setEmailData({ ...emailData, subject: e.target.value })}
+              disabled={loading}
+              placeholder="Enter email subject"
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Message</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              value={emailData.message}
+              onChange={(e) => setEmailData({ ...emailData, message: e.target.value })}
+              disabled={loading}
+              placeholder="Enter your message"
+            />
+          </Form.Group>
+        </Form>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button 
+          variant="secondary" 
+          onClick={() => setShowEmailModal(false)}
+          disabled={loading}
+        >
+          Cancel
+        </Button>
+        <Button 
+          variant="primary" 
+          onClick={handleEmailSend}
+          disabled={loading}
+        >
+          {loading ? (
+            <>
+              <Spinner
+                as="span"
+                animation="border"
+                size="sm"
+                role="status"
+                aria-hidden="true"
               />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Message</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={emailData.message}
-                onChange={(e) => setEmailData({ ...emailData, message: e.target.value })}
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowEmailModal(false)}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={handleEmailSend}>
-            Send Report
-          </Button>
-        </Modal.Footer>
-      </Modal>
+              <span className="ms-2">Sending...</span>
+            </>
+          ) : (
+            'Send Report'
+          )}
+        </Button>
+      </Modal.Footer>
+    </Modal>
     </div>
   );
 };
