@@ -82,7 +82,6 @@ const EmailIntegration = () => {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const[id , setId] = useState("");
 
   const employees = [
     { id: 1, name: "Alex Johnson" },
@@ -261,32 +260,8 @@ const EmailIntegration = () => {
     );
   };
 
-  const handleDeleteTask = async (taskId) => {
-    try {
-      const response = await axios.delete(
-        `https://hrb5wx2v-7000.inc1.devtunnels.ms/api/employeeTask/deleteEmployeeTask/${id}`,
-        {
-          headers: {
-            "Authorization": `Bearer ${localStorage.getItem("authToken")}`,
-          },
-        }
-      );
-      // Log response for debugging
-      console.log("Delete response:", response);
-      setId("");
-
-      if (response.data && response.data.status === "success") {
-        setTasks(tasks.filter((task) => task.id !== taskId));
-      } else {
-        alert(response.data?.message || "Failed to delete task.");
-      }
-    } catch (err) {
-      console.error("Delete error:", err);
-      alert(
-        err.response?.data?.message ||
-        "Error deleting task. Please check your network or API."
-      );
-    }
+  const handleDeleteTask = (taskId) => {
+    setTasks(tasks.filter((task) => task.id !== taskId));
   };
 
   const filteredTasks = tasks.filter((task) => {
