@@ -11,46 +11,59 @@ const Dashboard = () => {
         taskType: 'all'
     });
 
-    // Sample data
+    // Task type categories
+    const taskTypeCategories = {
+        'Tax Services': [
+            'Personal Tax Preparation',
+            'Corporate Tax Preparation',
+            'Tax Problem Resolution/Offer & Compromise',
+            'Penalty Abatement',
+            'Federal/State Representation'
+        ],
+        'Bookkeeping/Accounting Services': [
+            'Marked Financial Statements',
+            'Quickbooks Financial Statements',
+            'Payroll',
+            'Sales Tax',
+            'Initial QB Setup: Chart of Accounts & GL',
+            'Audit Services'
+        ]
+    };
+
+    // Sample data with updated task types
     const dashboardData = {
         totalTasks: 124,
         completedToday: 18,
         pendingTasks: 42,
         overdueTasks: 7,
         netInvoiceAmount: 5240,
-        tasksByType: {
-            labels: ['Development', 'Design', 'Meeting', 'Review', 'Documentation'],
-            data: [45, 30, 15, 20, 14]
+        tasksByCategory: {
+            labels: ['Tax Services', 'Bookkeeping/Accounting Services'],
+            data: [70, 54] // Sum of individual tasks in each category
         },
         completionRate: 72,
         recentTasks: [
-            { id: 1, title: 'Implement login page', type: 'Development', due: 'Today', status: 'In Progress' },
-            { id: 2, title: 'Client meeting prep', type: 'Meeting', due: 'Today', status: 'Completed' },
-            { id: 3, title: 'Dashboard UI redesign', type: 'Design', due: 'Tomorrow', status: 'Pending' },
-            { id: 4, title: 'API documentation', type: 'Documentation', due: 'Overdue', status: 'Overdue' }
+            { id: 1, title: 'Client tax filing - John Smith', type: 'Personal Tax Preparation', due: 'Today', status: 'In Progress' },
+            { id: 2, title: 'ABC Corp quarterly taxes', type: 'Corporate Tax Preparation', due: 'Today', status: 'Completed' },
+            { id: 3, title: 'Financial statements review', type: 'Marked Financial Statements', due: 'Tomorrow', status: 'Pending' },
+            { id: 4, title: 'IRS penalty abatement case', type: 'Penalty Abatement', due: 'Overdue', status: 'Overdue' }
         ]
     };
 
-    // Chart data
-    const tasksByTypeChart = {
-        labels: dashboardData.tasksByType.labels,
+    // Chart data - now showing only two categories
+    const tasksByCategoryChart = {
+        labels: dashboardData.tasksByCategory.labels,
         datasets: [
             {
-                label: 'Tasks by Type',
-                data: dashboardData.tasksByType.data,
+                label: 'Tasks by Category',
+                data: dashboardData.tasksByCategory.data,
                 backgroundColor: [
-                    'rgba(54, 162, 235, 0.7)',
-                    'rgba(255, 99, 132, 0.7)',
-                    'rgba(75, 192, 192, 0.7)',
-                    'rgba(255, 206, 86, 0.7)',
-                    'rgba(153, 102, 255, 0.7)'
+                    'rgba(54, 162, 235, 0.7)',   // Blue for Tax Services
+                    'rgba(255, 99, 132, 0.7)'    // Red for Bookkeeping/Accounting
                 ],
                 borderColor: [
                     'rgba(54, 162, 235, 1)',
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(153, 102, 255, 1)'
+                    'rgba(255, 99, 132, 1)'
                 ],
                 borderWidth: 1
             }
@@ -95,7 +108,6 @@ const Dashboard = () => {
         <div className="container-fluid py-4">
             <h3 className="mb-4 fw-bold text-dark">Task Management Dashboard</h3>
 
-        
             {/* Summary Cards */}
             <Row className="mb-4">
                 <Col xl={3} lg={6} md={6} sm={12} className="mb-4">
@@ -183,16 +195,22 @@ const Dashboard = () => {
                 <Col lg={4} md={6} sm={12} className="mb-4">
                     <Card className="h-100 shadow-sm">
                         <Card.Body>
-                            <h6 className="text-muted mb-3">Tasks by Type</h6>
+                            <h6 className="text-muted mb-3">Tasks by Category</h6>
                             <div style={{ height: '250px' }}>
                                 <Bar
-                                    data={tasksByTypeChart}
+                                    data={tasksByCategoryChart}
                                     options={{
                                         responsive: true,
                                         maintainAspectRatio: false,
                                         plugins: {
                                             legend: {
+                                                display: true,
                                                 position: 'bottom'
+                                            }
+                                        },
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true
                                             }
                                         }
                                     }}
@@ -224,8 +242,7 @@ const Dashboard = () => {
                 </Col>
             </Row>
 
-
-   {/* Filters */}
+            {/* Filters */}
             <Card className="mb-4 shadow-sm">
                 <Card.Body>
                     <Form>
@@ -269,28 +286,29 @@ const Dashboard = () => {
                                         onChange={handleFilterChange}
                                     >
                                         <option value="all">All Types</option>
-                                        <option value="development">Development</option>
-                                        <option value="design">Design</option>
-                                        <option value="meeting">Meeting</option>
-                                        <option value="documentation">Documentation</option>
+                                        <optgroup label="Tax Services">
+                                            {taskTypeCategories['Tax Services'].map(type => (
+                                                <option key={type} value={type}>{type}</option>
+                                            ))}
+                                        </optgroup>
+                                        <optgroup label="Bookkeeping/Accounting Services">
+                                            {taskTypeCategories['Bookkeeping/Accounting Services'].map(type => (
+                                                <option key={type} value={type}>{type}</option>
+                                            ))}
+                                        </optgroup>
                                     </Form.Select>
                                 </Form.Group>
                             </Col>
                         </Row>
-                        {/* <div className="d-flex justify-content-end mt-3">
-                            <Button variant="primary" className="me-2">Apply Filters</Button>
-                            <Button variant="outline-secondary">Reset</Button>
-                        </div> */}
                     </Form>
                 </Card.Body>
-            </Card> 
+            </Card>
 
             {/* Recent Tasks */}
             <Card className="shadow-sm">
                 <Card.Body>
                     <div className="d-flex justify-content-between align-items-center mb-4">
                         <h5 className="mb-0">Recent Tasks</h5>
-                        {/* <Button variant="outline-primary" size="sm">View All</Button> */}
                     </div>
                     <div className="table-responsive">
                         <table className="table table-hover">
