@@ -11,9 +11,17 @@ const Dashboard = () => {
         taskType: 'all'
     });
 
-    const [dashboardData, setDashboardData] = useState(null);
+    const [dashboardData, setDashboardData] = useState({
+        totalTasks: 0,
+        completedToday: 0,
+        pendingTasks: 0,
+        overdueTasks: 0,
+        tasks: []
+    });
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [employees, setEmployees] = useState([]);
 
     // Task type categories
     const taskTypeCategories = {
@@ -47,12 +55,39 @@ const Dashboard = () => {
         const fetchDashboardData = async () => {
             try {
                 setLoading(true);
+                setError(null);
+                
+                // Fetch employees first
+                const employeesResponse = await axiosInstance.get('/user/getAllUsers');
+                setEmployees(employeesResponse.data?.data || []);
+                
+                // Then fetch dashboard data
                 const response = await axiosInstance.get('/dashboard/getDashboardData');
-                setDashboardData(response.data.data);
+                
+                // Process tasks to ensure they have required fields
+                const processedTasks = (response.data.data?.tasks || []).map(task => ({
+                    ...task,
+                    id: task._id || Math.random().toString(),
+                    title: task.title || 'Untitled Task',
+                    taskType: task.taskType || 'Uncategorized',
+                    assignedToName: task.assignedToName || 'Unassigned',
+                    status: task.status || 'Pending',
+                    invoiceAmount: task.invoiceAmount || 0,
+                    dueDate: task.dueDate || null
+                }));
+                
+                setDashboardData({
+                    totalTasks: response.data.data?.totalTasks || 0,
+                    completedToday: response.data.data?.completedToday || 0,
+                    pendingTasks: response.data.data?.pendingTasks || 0,
+                    overdueTasks: response.data.data?.overdueTasks || 0,
+                    tasks: processedTasks
+                });
+                
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
-                setError('Failed to load dashboard data');
+                setError('Failed to load dashboard data. Please try again later.');
                 setLoading(false);
             }
         };
@@ -85,16 +120,60 @@ const Dashboard = () => {
         }
     };
 
-    // Prepare chart data based on API response
-    const prepareChartData = () => {
-        if (!dashboardData) return { tasksByCategory: null, completionChart: null };
+    // Filter tasks based on current filters
+    const filterTasks = () => {
+        let filtered = [...dashboardData.tasks];
 
+        // Filter by employee
+        if (filters.employee !== 'all') {
+            filtered = filtered.filter(task => 
+                task.assignedTo === filters.employee
+            );
+        }
+
+        // Filter by task type
+        if (filters.taskType !== 'all') {
+            filtered = filtered.filter(task => 
+                taskTypeCategories[filters.taskType]?.includes(task.taskType)
+            );
+        }
+
+        // Filter by date range (simplified example)
+        const now = new Date();
+        if (filters.dateRange === 'today') {
+            filtered = filtered.filter(task => {
+                const taskDate = task.dueDate ? new Date(task.dueDate) : null;
+                return taskDate && taskDate.toDateString() === now.toDateString();
+            });
+        } else if (filters.dateRange === 'week') {
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+            filtered = filtered.filter(task => {
+                const taskDate = task.dueDate ? new Date(task.dueDate) : null;
+                return taskDate && taskDate >= oneWeekAgo && taskDate <= now;
+            });
+        } else if (filters.dateRange === 'month') {
+            const oneMonthAgo = new Date();
+            oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+            filtered = filtered.filter(task => {
+                const taskDate = task.dueDate ? new Date(task.dueDate) : null;
+                return taskDate && taskDate >= oneMonthAgo && taskDate <= now;
+            });
+        }
+
+        return filtered;
+    };
+
+    // Prepare chart data based on filtered tasks
+    const prepareChartData = () => {
+        const filteredTasks = filterTasks();
+        
         // Group tasks by category (Tax Services vs Accounting Services)
-        const taxServicesCount = dashboardData.tasks.filter(task =>
+        const taxServicesCount = filteredTasks.filter(task =>
             taskTypeCategories['Tax Services'].includes(task.taskType)
         ).length;
 
-        const accountingServicesCount = dashboardData.tasks.filter(task =>
+        const accountingServicesCount = filteredTasks.filter(task =>
             taskTypeCategories['Accounting Services'].includes(task.taskType)
         ).length;
 
@@ -105,8 +184,8 @@ const Dashboard = () => {
                     label: 'Tasks by Category',
                     data: [taxServicesCount, accountingServicesCount],
                     backgroundColor: [
-                        'rgba(54, 162, 235, 0.7)',   // Blue for Tax Services
-                        'rgba(255, 99, 132, 0.7)'    // Red for Accounting Services
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 99, 132, 0.7)'
                     ],
                     borderColor: [
                         'rgba(54, 162, 235, 1)',
@@ -118,8 +197,8 @@ const Dashboard = () => {
         };
 
         // Completion rate (assuming completed vs not completed)
-        const completedCount = dashboardData.tasks.filter(task => task.status === 'Completed').length;
-        const totalCount = dashboardData.tasks.length || 1;
+        const completedCount = filteredTasks.filter(task => task.status === 'Completed').length;
+        const totalCount = filteredTasks.length || 1;
         const completionRate = Math.round((completedCount / totalCount) * 100);
 
         const completionChart = {
@@ -133,10 +212,29 @@ const Dashboard = () => {
             ]
         };
 
-        return { tasksByCategory, completionChart };
+        // Calculate summary metrics based on filtered tasks
+        const summaryData = {
+            totalTasks: filteredTasks.length,
+            completedToday: filteredTasks.filter(task => 
+                task.status === 'Completed' && 
+                task.dueDate && 
+                new Date(task.dueDate).toDateString() === new Date().toDateString()
+            ).length,
+            pendingTasks: filteredTasks.filter(task => 
+                task.status === 'Pending'
+            ).length,
+            overdueTasks: filteredTasks.filter(task => 
+                task.status !== 'Completed' && 
+                task.dueDate && 
+                new Date(task.dueDate) < new Date()
+            ).length
+        };
+
+        return { tasksByCategory, completionChart, summaryData };
     };
 
-    const { tasksByCategory, completionChart } = prepareChartData();
+    const { tasksByCategory, completionChart, summaryData } = prepareChartData();
+    const filteredTasks = filterTasks();
 
     if (loading) {
         return (
@@ -155,13 +253,6 @@ const Dashboard = () => {
         );
     }
 
-    if (!dashboardData) {
-        return <div className="alert alert-warning">No data available</div>;
-    }
-
-    // Filter out tasks with null titles for the recent tasks list
-    const validTasks = dashboardData.tasks.filter(task => task.title);
-
     return (
         <div className="container-fluid py-4">
             <h3 className="mb-4 fw-bold text-dark">Task Management Dashboard</h3>
@@ -174,7 +265,7 @@ const Dashboard = () => {
                             <div className="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 className="text-muted mb-2">Total Tasks</h6>
-                                    <h3 className="mb-0">{dashboardData.totalTasks}</h3>
+                                    <h3 className="mb-0">{summaryData.totalTasks}</h3>
                                 </div>
                                 <div className="bg-primary bg-opacity-10 p-3 rounded">
                                     <i className="bi bi-list-task fs-4 text-primary"></i>
@@ -189,7 +280,7 @@ const Dashboard = () => {
                             <div className="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 className="text-muted mb-2">Completed Today</h6>
-                                    <h3 className="mb-0">{dashboardData.completedToday}</h3>
+                                    <h3 className="mb-0">{summaryData.completedToday}</h3>
                                 </div>
                                 <div className="bg-success bg-opacity-10 p-3 rounded">
                                     <i className="bi bi-check-circle fs-4 text-success"></i>
@@ -204,7 +295,7 @@ const Dashboard = () => {
                             <div className="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 className="text-muted mb-2">Pending Tasks</h6>
-                                    <h3 className="mb-0">{dashboardData.pendingTasks}</h3>
+                                    <h3 className="mb-0">{summaryData.pendingTasks}</h3>
                                 </div>
                                 <div className="bg-warning bg-opacity-10 p-3 rounded">
                                     <i className="bi bi-hourglass-split fs-4 text-warning"></i>
@@ -219,7 +310,7 @@ const Dashboard = () => {
                             <div className="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 className="text-muted mb-2">Overdue Tasks</h6>
-                                    <h3 className="mb-0">{dashboardData.overdueTasks}</h3>
+                                    <h3 className="mb-0">{summaryData.overdueTasks}</h3>
                                 </div>
                                 <div className="bg-danger bg-opacity-10 p-3 rounded">
                                     <i className="bi bi-exclamation-triangle fs-4 text-danger"></i>
@@ -250,7 +341,10 @@ const Dashboard = () => {
                                             },
                                             scales: {
                                                 y: {
-                                                    beginAtZero: true
+                                                    beginAtZero: true,
+                                                    ticks: {
+                                                        stepSize: 1
+                                                    }
                                                 }
                                             }
                                         }}
@@ -276,6 +370,13 @@ const Dashboard = () => {
                                             plugins: {
                                                 legend: {
                                                     position: 'bottom'
+                                                },
+                                                tooltip: {
+                                                    callbacks: {
+                                                        label: function(context) {
+                                                            return `${context.label}: ${context.raw}%`;
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }}
@@ -303,8 +404,11 @@ const Dashboard = () => {
                                         onChange={handleFilterChange}
                                     >
                                         <option value="all">All Employees</option>
-                                        <option value="4">Amit Verma</option>
-                                        <option value="5">Neha Gupta</option>
+                                        {employees.map(employee => (
+                                            <option key={employee._id} value={employee._id}>
+                                                {employee.name}
+                                            </option>
+                                        ))}
                                     </Form.Select>
                                 </Form.Group>
                             </Col>
@@ -319,7 +423,7 @@ const Dashboard = () => {
                                         <option value="today">Today</option>
                                         <option value="week">This Week</option>
                                         <option value="month">This Month</option>
-                                        <option value="custom">Custom Range</option>
+                                        <option value="all">All Time</option>
                                     </Form.Select>
                                 </Form.Group>
                             </Col>
@@ -347,6 +451,7 @@ const Dashboard = () => {
                 <Card.Body>
                     <div className="d-flex justify-content-between align-items-center mb-4">
                         <h5 className="mb-0">Recent Tasks</h5>
+                        <small className="text-muted">Showing {filteredTasks.length} tasks</small>
                     </div>
                     <div className="table-responsive">
                         <table className="table table-hover">
@@ -361,17 +466,17 @@ const Dashboard = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {validTasks.length > 0 ? (
-                                    validTasks.map(task => (
+                                {filteredTasks.length > 0 ? (
+                                    filteredTasks.map(task => (
                                         <tr key={task.id}>
                                             <td>{task.title}</td>
-                                            <td>{task.taskType || 'N/A'}</td>
+                                            <td>{task.taskType}</td>
                                             <td>{formatCurrency(task.invoiceAmount)}</td>
-                                            <td>{task.assignedToName || 'Unassigned'}</td>
+                                            <td>{task.assignedToName}</td>
                                             <td>{task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '-'}</td>
                                             <td>
                                                 <Badge bg={getStatusBadge(task.status)}>
-                                                    {task.status || 'Unassigned'}
+                                                    {task.status}
                                                 </Badge>
                                             </td>
                                         </tr>
@@ -379,7 +484,7 @@ const Dashboard = () => {
                                 ) : (
                                     <tr>
                                         <td colSpan="6" className="text-center text-muted py-4">
-                                            No tasks found
+                                            No tasks found matching your filters
                                         </td>
                                     </tr>
                                 )}

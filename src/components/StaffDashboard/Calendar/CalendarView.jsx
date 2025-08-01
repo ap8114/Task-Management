@@ -289,7 +289,7 @@ const CalendarView = () => {
                                 className={`p-1 mb-1 rounded text-white bg-${getStatusBadge(task.status)}`}
                               >
                                 <small>
-                                  {task.time} - {task.title}
+                                  {task.time} - {task.title} - {task.description}
                                 </small>
                               </div>
                             ))}

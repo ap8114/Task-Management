@@ -180,9 +180,9 @@ const Notifications = () => {
                         <Card.Header className=" d-flex justify-content-between align-items-center">
                             <h3 className='fw-bold text-dark'>
                                 Notifications & Alerts</h3>
-                            <Button variant="primary" onClick={() => setShowTaskModal(true)}>
+                            {/* <Button variant="primary" onClick={() => setShowTaskModal(true)}>
                                 + Add Task
-                            </Button>
+                            </Button> */}
                         </Card.Header>
                         <Card.Body>
                             <Tab.Container id="task-tabs" defaultActiveKey="pending">

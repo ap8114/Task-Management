@@ -158,11 +158,11 @@ const MyTasks = () => {
                       </td>
                       <td>
                         <small className="d-block text-muted">
-                          Start: {task.startDate || "N/A"}
+                          Start: {task.deadline || "N/A"}
                         </small>
-                        <small className="d-block text-muted">
+                        {/* <small className="d-block text-muted">
                           Due: {task.dueDate || "N/A"}
-                        </small>
+                        </small> */}
                       </td>
                       <td>
                         <small className="text-muted">
@@ -170,10 +170,10 @@ const MyTasks = () => {
                         </small>
                       </td>
                       <td>
-                        {task.file ? (
+                        {task.image ? (
                           <Badge bg="light" text="dark" className="border">
                             <i className="fas fa-paperclip me-1"></i>
-                            {task.file}
+                            {task.image}
                           </Badge>
                         ) : (
                           "No attachment"
