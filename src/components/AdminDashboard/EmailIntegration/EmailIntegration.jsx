@@ -82,14 +82,14 @@ const EmailIntegration = () => {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  const employees = [
-    { id: 1, name: "Alex Johnson" },
-    { id: 2, name: "Sam Rivera" },
-    { id: 3, name: "Taylor Chen" },
-    { id: 4, name: "Jordan Smith" },
-    { id: 5, name: "Casey Wong" },
-  ];
+const [employees , setEmployees] = useState()
+  // const employees = [
+  //   { id: 1, name: "Alex Johnson" },
+  //   { id: 2, name: "Sam Rivera" },
+  //   { id: 3, name: "Taylor Chen" },
+  //   { id: 4, name: "Jordan Smith" },
+  //   { id: 5, name: "Casey Wong" },
+  // ];
 
   const taskTypes = [
     "description",
@@ -107,8 +107,8 @@ const EmailIntegration = () => {
       setIsTaskLoading(true);
       setTaskError(null);
       try {
-        const response = await axios.get(
-          "https://projectmanagement-backend-production.up.railway.app/api/emailTask/getAllEmailTasks",
+        const response = await axiosInstance.get(
+          "emailTask/getAllEmailTasks",
           {
             headers: {
               "Authorization": `Bearer ${localStorage.getItem("authToken")}`,
@@ -144,6 +144,18 @@ const EmailIntegration = () => {
     fetchTasks();
   }, []);
 
+
+  const fetchUsers = async()=>{
+    try {
+      const res = await axiosInstance.get("user/getAllUsers");
+      setEmployees(res.data);
+    } catch (error) {
+      console.error("field to fetch user",error)
+    }
+  }
+  useEffect(()=>{
+fetchUsers()
+  },[])
   const handleConvertToTask = (email) => {
     setSelectedEmail(email);
     setTaskTitle(email.subject);
@@ -187,8 +199,8 @@ const EmailIntegration = () => {
       });
 
       // Axios POST API call
-      const response = await axios.post(
-        "https://projectmanagement-backend-production.up.railway.app/api/emailTask/createEmailTask",
+      const response = await axiosInstance.post(
+        "emailTask/createEmailTask",
         formData,
         {
           headers: {
@@ -828,7 +840,7 @@ const EmailIntegration = () => {
                     required
                   >
                     <option value="">Select team member</option>
-                    {employees.map((emp) => (
+                    {employees?.map((emp) => (
                       <option key={emp.id} value={emp.id}>
                         {emp.name}
                       </option>
