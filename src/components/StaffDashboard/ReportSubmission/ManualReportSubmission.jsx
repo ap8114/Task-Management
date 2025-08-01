@@ -42,8 +42,8 @@ const ManualReportSubmission = () => {
   };
 
   return (
-    <Container fluid className="py-4 px-2">
-      <Row className="justify-content-center">
+    <div className="p-3">
+      <div className="">
         <Col xs={12} lg={10}>
           <div className="mb-4 text-center text-lg-start">
             <h3 className="fw-bold text-dark">Manual Daily Report Submission</h3>
@@ -184,8 +184,8 @@ const ManualReportSubmission = () => {
             </Card.Body>
           </Card>
         </Col>
-      </Row>
-    </Container>
+      </div>
+    </div>
   );
 };
 
