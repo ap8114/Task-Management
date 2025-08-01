@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Form, Table, Badge, Dropdown, Navbar, Nav, Container, Card, Row, Col, Toast } from 'react-bootstrap';
+import { Modal, Button, Form, Table, Badge, Container, Card, Row, Col, Toast } from 'react-bootstrap';
 import './TaskManagement.css';
+import axiosInstance from '../../../Utilities/axiosInstance';
 
-const TaskManagemnet = () => {
-  // State for tasks
-  const [tasks, setTasks] = useState([
-    { id: 1, title: 'Complete project proposal', description: 'Finish the proposal document for client review', status: 'In Progress', assignedTo: 'john@example.com', dueDate: '2023-06-15', priority: 'High' },
-    { id: 2, title: 'Fix login issue', description: 'Users unable to login with Google accounts', status: 'To Do', assignedTo: 'sarah@example.com', dueDate: '2023-06-10', priority: 'Critical' },
-    { id: 3, title: 'Update documentation', description: 'Update API documentation for new endpoints', status: 'Done', assignedTo: 'mike@example.com', dueDate: '2023-05-28', priority: 'Medium' },
-  ]);
-
-  // State for users
+const TaskManagement = () => {
+  // State for tasks and users
+  const [tasks, setTasks] = useState([]);
   const [users, setUsers] = useState([
     { id: 1, email: 'admin@example.com', name: 'Admin User', role: 'Admin', permissions: { view: true, edit: true, delete: true, assignedOnly: false } },
     { id: 2, email: 'john@example.com', name: 'John Smith', role: 'Manager', permissions: { view: true, edit: true, delete: false, assignedOnly: false } },
@@ -28,9 +23,9 @@ const TaskManagemnet = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterPriority, setFilterPriority] = useState('All');
-  const [currentUserRole, setCurrentUserRole] = useState('Admin'); // Simulated logged-in user
+  const [currentUserRole, setCurrentUserRole] = useState('Admin');
 
-  // Task form
+  // Form data
   const [taskForm, setTaskForm] = useState({
     title: '',
     description: '',
@@ -40,7 +35,6 @@ const TaskManagemnet = () => {
     priority: 'Medium'
   });
 
-  // User form
   const [userForm, setUserForm] = useState({
     email: '',
     name: '',
@@ -53,7 +47,24 @@ const TaskManagemnet = () => {
     }
   });
 
-  // Reset task form
+  // Fetch tasks from API
+  const fetchTasks = async () => {
+    try {
+      const res = await axiosInstance.get("tasks/getAllTasks");
+      setTasks(res.data.data || []);
+    } catch (error) {
+      console.error("Failed to fetch tasks:", error);
+      showToastMessage('Failed to fetch tasks');
+    }
+  };
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+
+  
+  // Helper functions
   const resetTaskForm = () => {
     setTaskForm({
       title: '',
@@ -66,7 +77,6 @@ const TaskManagemnet = () => {
     setCurrentTask(null);
   };
 
-  // Reset user form
   const resetUserForm = () => {
     setUserForm({
       email: '',
@@ -82,51 +92,97 @@ const TaskManagemnet = () => {
     setCurrentUser(null);
   };
 
-  // Handle task form changes
-  const handleTaskFormChange = (e) => {
-    const { name, value } = e.target;
-    setTaskForm({
-      ...taskForm,
-      [name]: value
-    });
+  const showToastMessage = (message) => {
+    setToastMessage(message);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
   };
 
-  // Handle user form changes
+  // Form handlers
+  const handleTaskFormChange = (e) => {
+    const { name, value } = e.target;
+    setTaskForm(prev => ({ ...prev, [name]: value }));
+  };
+
   const handleUserFormChange = (e) => {
     const { name, value, type, checked } = e.target;
-
     if (name.startsWith('permissions.')) {
       const permissionField = name.split('.')[1];
-      setUserForm({
-        ...userForm,
+      setUserForm(prev => ({
+        ...prev,
         permissions: {
-          ...userForm.permissions,
+          ...prev.permissions,
           [permissionField]: type === 'checkbox' ? checked : value
         }
-      });
+      }));
     } else {
-      setUserForm({
-        ...userForm,
-        [name]: type === 'checkbox' ? checked : value
-      });
+      setUserForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
     }
   };
 
-  // Open task modal for editing
+  // Task operations
   const handleEditTask = (task) => {
     setCurrentTask(task);
     setTaskForm({
-      title: task.title,
-      description: task.description,
-      status: task.status,
-      assignedTo: task.assignedTo,
-      dueDate: task.dueDate,
-      priority: task.priority
+      title: task.title || '',
+      description: task.description || '',
+      status: task.status || 'To Do',
+      assignedTo: task.assignedTo || '',
+      dueDate: task.dueDate || '',
+      priority: task.priority || 'Medium'
     });
     setShowTaskModal(true);
   };
 
-  // Open user modal for editing
+  const handleSaveTask = async () => {
+    const { title, description, status, priority, assignedTo, dueDate } = taskForm;
+
+    if (!title || !assignedTo) {
+      showToastMessage("Title and Assigned To are required!");
+      return;
+    }
+
+    const payload = {
+      title,
+      description,
+      status,
+      priority,
+      assignedTo,
+      dueDate
+    };
+
+    try {
+      let response;
+      if (currentTask) {
+        response = await axiosInstance.patch(`tasks/updateTask/${currentTask.id}`, payload);
+      } else {
+        response = await axiosInstance.post("tasks/addTask", payload);
+      }
+
+      showToastMessage(currentTask ?"Task created successfully!": "Task updated successfully!"  );
+      setShowTaskModal(false);
+      resetTaskForm();
+      fetchTasks();
+    } catch (error) {
+      console.error("Error:", error);
+      showToastMessage("Server error. Please try again.");
+    }
+  };
+
+  const handleDeleteTask = async (taskId) => {
+    if (window.confirm('Are you sure you want to delete this task?')) {
+      try {
+        await axiosInstance.delete(`tasks/deleteTask/${taskId}`);
+        showToastMessage('Task deleted successfully!');
+        fetchTasks();
+      } catch (error) {
+        console.error("Error:", error);
+        showToastMessage("Failed to delete task");
+      }
+    }
+  };
+
+  // User operations
   const handleEditUser = (user) => {
     setCurrentUser(user);
     setUserForm({
@@ -143,39 +199,14 @@ const TaskManagemnet = () => {
     setShowUserModal(true);
   };
 
-  // Save task
-  const handleSaveTask = () => {
-    if (currentTask) {
-      // Update existing task
-      const updatedTasks = tasks.map(task =>
-        task.id === currentTask.id ? { ...task, ...taskForm } : task
-      );
-      setTasks(updatedTasks);
-      showToastMessage('Task updated successfully!');
-    } else {
-      // Add new task
-      const newTask = {
-        id: Math.max(...tasks.map(t => t.id), 0) + 1,
-        ...taskForm
-      };
-      setTasks([...tasks, newTask]);
-      showToastMessage('Task added successfully!');
-    }
-    setShowTaskModal(false);
-    resetTaskForm();
-  };
-
-  // Save user
   const handleSaveUser = () => {
     if (currentUser) {
-      // Update existing user
       const updatedUsers = users.map(user =>
         user.id === currentUser.id ? { ...user, ...userForm } : user
       );
       setUsers(updatedUsers);
       showToastMessage('User updated successfully!');
     } else {
-      // Add new user
       const newUser = {
         id: Math.max(...users.map(u => u.id), 0) + 1,
         ...userForm
@@ -187,15 +218,6 @@ const TaskManagemnet = () => {
     resetUserForm();
   };
 
-  // Delete task
-  const handleDeleteTask = (taskId) => {
-    if (window.confirm('Are you sure you want to delete this task?')) {
-      setTasks(tasks.filter(task => task.id !== taskId));
-      showToastMessage('Task deleted successfully!');
-    }
-  };
-
-  // Delete user
   const handleDeleteUser = (userId) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       setUsers(users.filter(user => user.id !== userId));
@@ -203,29 +225,26 @@ const TaskManagemnet = () => {
     }
   };
 
-  // Show toast message
-  const showToastMessage = (message) => {
-    setToastMessage(message);
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
-  };
-
-  // Filter tasks based on search and filters
+  // Filter and utility functions
   const filteredTasks = tasks.filter(task => {
-    const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      task.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === 'All' || task.status === filterStatus;
-    const matchesPriority = filterPriority === 'All' || task.priority === filterPriority;
+    const title = task.title || '';
+    const description = task.description || '';
+    const status = task.status || '';
+    const priority = task.priority || '';
+    const assignedTo = task.assignedTo || '';
 
-    // If current user can only see assigned tasks, filter accordingly
+    const matchesSearch = title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = filterStatus === 'All' || status === filterStatus;
+    const matchesPriority = filterPriority === 'All' || priority === filterPriority;
+
     const currentUserObj = users.find(u => u.role === currentUserRole);
     const assignedOnlyFilter = currentUserObj?.permissions?.assignedOnly ?
-      task.assignedTo === currentUserObj.email : true;
+      assignedTo === currentUserObj.email : true;
 
     return matchesSearch && matchesStatus && matchesPriority && assignedOnlyFilter;
   });
 
-  // Get priority badge color
   const getPriorityBadge = (priority) => {
     switch (priority) {
       case 'Critical': return 'danger';
@@ -236,7 +255,6 @@ const TaskManagemnet = () => {
     }
   };
 
-  // Get status badge color
   const getStatusBadge = (status) => {
     switch (status) {
       case 'Done': return 'success';
@@ -246,12 +264,10 @@ const TaskManagemnet = () => {
     }
   };
 
-  // Check if current user has permission
   const hasPermission = (permission) => {
     const user = users.find(u => u.role === currentUserRole);
     return user ? user.permissions[permission] : false;
   };
-
 
   return (
     <div className="">
@@ -313,66 +329,61 @@ const TaskManagemnet = () => {
             </Col>
           </div>
 
-
-
           {/* Filters and Actions */}
-       <Card className="mb-4">
-  <Card.Body>
-    <Row className="g-2 align-items-center">
-      <Col xs={12} md={4}>
-        <Form.Group>
-          <Form.Control
-            type="text"
-            placeholder="Search tasks..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </Form.Group>
-      </Col>
+          <Card className="mb-4">
+            <Card.Body>
+              <Row className="g-2 align-items-center">
+                <Col xs={12} md={4}>
+                  <Form.Control
+                    type="text"
+                    placeholder="Search tasks..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </Col>
 
-      <Col xs={6} md={2}>
-        <Form.Select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-        >
-          <option value="All">All Status</option>
-          <option value="To Do">To Do</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Done">Done</option>
-        </Form.Select>
-      </Col>
+                <Col xs={6} md={2}>
+                  <Form.Select
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                  >
+                    <option value="All">All Status</option>
+                    <option value="To Do">To Do</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Done">Done</option>
+                  </Form.Select>
+                </Col>
 
-      <Col xs={6} md={2}>
-        <Form.Select
-          value={filterPriority}
-          onChange={(e) => setFilterPriority(e.target.value)}
-        >
-          <option value="All">All Priority</option>
-          <option value="Critical">Critical</option>
-          <option value="High">High</option>
-          <option value="Medium">Medium</option>
-          <option value="Low">Low</option>
-        </Form.Select>
-      </Col>
+                <Col xs={6} md={2}>
+                  <Form.Select
+                    value={filterPriority}
+                    onChange={(e) => setFilterPriority(e.target.value)}
+                  >
+                    <option value="All">All Priority</option>
+                    <option value="Critical">Critical</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                  </Form.Select>
+                </Col>
 
-      <Col xs={12} md={4} className="text-md-end">
-        {hasPermission('edit') && (
-          <Button
-            variant="primary"
-            onClick={() => {
-              resetTaskForm();
-              setShowTaskModal(true);
-            }}
-            className="w-100 w-md-auto"
-          >
-            <i className="bi bi-plus-circle me-2"></i>Add New Task
-          </Button>
-        )}
-      </Col>
-    </Row>
-  </Card.Body>
-</Card>
-
+                <Col xs={12} md={4} className="text-md-end">
+                  {hasPermission('edit') && (
+                    <Button
+                      variant="primary"
+                      onClick={() => {
+                        resetTaskForm();
+                        setShowTaskModal(true);
+                      }}
+                      className="w-100 w-md-auto"
+                    >
+                      <i className="bi bi-plus-circle me-2"></i>Add New Task
+                    </Button>
+                  )}
+                </Col>
+              </Row>
+            </Card.Body>
+          </Card>
 
           {/* Tasks Table */}
           <Card>
@@ -394,18 +405,18 @@ const TaskManagemnet = () => {
                     {filteredTasks.length > 0 ? (
                       filteredTasks.map(task => (
                         <tr key={task.id}>
-                          <td>{task.title}</td>
-                          <td>{task.description}</td>
-                          <td>{users.find(u => u.email === task.assignedTo)?.name || task.assignedTo}</td>
-                          <td>{task.dueDate}</td>
+                          <td>{task.title || 'N/A'}</td>
+                          <td>{task.description || 'N/A'}</td>
+                          <td>{users.find(u => u.email === task.assignedToName)?.name || task.assignedToName || 'N/A'}</td>
+                          <td>{task.dueDate || 'N/A'}</td>
                           <td>
                             <Badge bg={getPriorityBadge(task.priority)}>
-                              {task.priority}
+                              {task.priority || 'N/A'}
                             </Badge>
                           </td>
                           <td>
                             <Badge bg={getStatusBadge(task.status)}>
-                              {task.status}
+                              {task.status || 'N/A'}
                             </Badge>
                           </td>
                           <td>
@@ -542,176 +553,14 @@ const TaskManagemnet = () => {
           </Modal>
 
           {/* User Modal */}
-          <Modal show={showUserModal} onHide={() => { setShowUserModal(false); resetUserForm(); }}>
-            <Modal.Header closeButton>
-              <Modal.Title>{currentUser ? 'Edit User' : 'Add New User'}</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <Form>
-                <Form.Group className="mb-3">
-                  <Form.Label>Email</Form.Label>
-                  <Form.Control
-                    type="email"
-                    name="email"
-                    value={userForm.email}
-                    onChange={handleUserFormChange}
-                    required
-                    disabled={!!currentUser}
-                  />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>Name</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="name"
-                    value={userForm.name}
-                    onChange={handleUserFormChange}
-                    required
-                  />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>Role</Form.Label>
-                  <Form.Select
-                    name="role"
-                    value={userForm.role}
-                    onChange={handleUserFormChange}
-                  >
-                    <option value="Admin">Admin</option>
-                    <option value="Manager">Manager</option>
-                    <option value="Developer">Developer</option>
-                  </Form.Select>
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>Permissions</Form.Label>
-                  <div className="border p-3 rounded">
-                    <Form.Check
-                      type="checkbox"
-                      label="Can View Tasks"
-                      name="permissions.view"
-                      checked={userForm.permissions.view}
-                      onChange={handleUserFormChange}
-                    />
-                    <Form.Check
-                      type="checkbox"
-                      label="Can Edit Tasks"
-                      name="permissions.edit"
-                      checked={userForm.permissions.edit}
-                      onChange={handleUserFormChange}
-                    />
-                    <Form.Check
-                      type="checkbox"
-                      label="Can Delete Tasks"
-                      name="permissions.delete"
-                      checked={userForm.permissions.delete}
-                      onChange={handleUserFormChange}
-                    />
-                    <Form.Check
-                      type="checkbox"
-                      label="Only See Assigned Tasks"
-                      name="permissions.assignedOnly"
-                      checked={userForm.permissions.assignedOnly}
-                      onChange={handleUserFormChange}
-                    />
-                  </div>
-                </Form.Group>
-              </Form>
-            </Modal.Body>
-            <Modal.Footer>
-              {currentUser && (
-                <Button variant="danger" onClick={() => { handleDeleteUser(currentUser.id); setShowUserModal(false); }} className="me-auto">
-                  Delete User
-                </Button>
-              )}
-              <Button variant="secondary" onClick={() => { setShowUserModal(false); resetUserForm(); }}>
-                Close
-              </Button>
-              <Button variant="primary" onClick={handleSaveUser}>
-                Save Changes
-              </Button>
-            </Modal.Footer>
-          </Modal>
-
-          {/* Users Table (only visible to admins/managers) */}
-          {hasPermission('edit') && (
-            <Modal size="lg" show={showUserModal} onHide={() => setShowUserModal(false)}>
-              <Modal.Header closeButton>
-                <Modal.Title>User Management</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                <Table striped bordered hover>
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Email</th>
-                      <th>Role</th>
-                      <th>Permissions</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users.map(user => (
-                      <tr key={user.id}>
-                        <td>{user.name}</td>
-                        <td>{user.email}</td>
-                        <td>{user.role}</td>
-                        <td>
-                          {user.permissions.view && <Badge bg="info" className="me-1">View</Badge>}
-                          {user.permissions.edit && <Badge bg="warning" className="me-1">Edit</Badge>}
-                          {user.permissions.delete && <Badge bg="danger" className="me-1">Delete</Badge>}
-                          {user.permissions.assignedOnly && <Badge bg="secondary">Assigned Only</Badge>}
-                        </td>
-                        <td>
-                          <Button
-                            variant="outline-primary"
-                            size="sm"
-                            className="me-2"
-                            onClick={() => handleEditUser(user)}
-                          >
-                            <i className="bi bi-pencil"></i>
-                          </Button>
-                          {hasPermission('delete') && (
-                            <Button
-                              variant="outline-danger"
-                              size="sm"
-                              onClick={() => handleDeleteUser(user.id)}
-                            >
-                              <i className="bi bi-trash"></i>
-                            </Button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </Modal.Body>
-              <Modal.Footer>
-                <Button variant="secondary" onClick={() => setShowUserModal(false)}>
-                  Close
-                </Button>
-                <Button variant="primary" onClick={() => { resetUserForm(); setShowUserModal(true); }}>
-                  Add New User
-                </Button>
-              </Modal.Footer>
-            </Modal>
-          )}
+        
 
           {/* Toast Notification */}
-          <Toast
-            show={showToast}
-            onClose={() => setShowToast(false)}
-            delay={3000}
-            autohide
-            style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999 }}
-          >
-            <Toast.Header>
-              <strong className="me-auto">Notification</strong>
-            </Toast.Header>
-            <Toast.Body>{toastMessage}</Toast.Body>
-          </Toast>
+         
         </Container>
       </div>
     </div>
   );
 };
 
-export default TaskManagemnet;
+export default TaskManagement;
