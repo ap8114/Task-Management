@@ -5,7 +5,42 @@ import axiosInstance from '../../../Utilities/axiosInstance';
 
 const TaskManagement = () => {
   // State for tasks and users
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState([
+    {
+      id: 1,
+      title: 'Complete tax filing',
+      description: 'File annual tax returns for client XYZ',
+      status: 'In Progress',
+      assignedTo: 'john@example.com',
+      dueDate: '2023-12-15',
+      priority: 'High',
+      taskType: 'Personal Tax Preparation',
+      invoiceAmount: 500
+    },
+    {
+      id: 2,
+      title: 'QuickBooks setup',
+      description: 'Initial setup for new client ABC Corp',
+      status: 'To Do',
+      assignedTo: 'sarah@example.com',
+      dueDate: '2023-11-30',
+      priority: 'Medium',
+      taskType: 'Initial QB Setup',
+      invoiceAmount: 1200
+    },
+    {
+      id: 3,
+      title: 'Audit financial statements',
+      description: 'Review and audit Q3 financials',
+      status: 'Done',
+      assignedTo: 'mike@example.com',
+      dueDate: '2023-10-15',
+      priority: 'Critical',
+      taskType: 'Audit Services',
+      invoiceAmount: 2500
+    }
+  ]);
+  
   const [users, setUsers] = useState([
     // { id: 1, email: 'admin@example.com', name: 'Admin User', role: 'Admin', permissions: { view: true, edit: true, delete: true, assignedOnly: false } },
     // { id: 2, email: 'john@example.com', name: 'John Smith', role: 'Manager', permissions: { view: true, edit: true, delete: false, assignedOnly: false } },
@@ -32,7 +67,9 @@ const TaskManagement = () => {
     status: 'To Do',
     assignedTo: '',
     dueDate: '',
-    priority: 'Medium'
+    priority: 'Medium',
+    taskType: '',
+    invoiceAmount: ''
   });
 
   const [userForm, setUserForm] = useState({
@@ -62,8 +99,6 @@ const TaskManagement = () => {
     fetchTasks();
   }, []);
 
-
-  
   // Helper functions
   const resetTaskForm = () => {
     setTaskForm({
@@ -72,7 +107,9 @@ const TaskManagement = () => {
       status: 'To Do',
       assignedTo: '',
       dueDate: '',
-      priority: 'Medium'
+      priority: 'Medium',
+      taskType: '',
+      invoiceAmount: ''
     });
     setCurrentTask(null);
   };
@@ -129,16 +166,18 @@ const TaskManagement = () => {
       status: task.status || 'To Do',
       assignedTo: task.assignedTo || '',
       dueDate: task.dueDate || '',
-      priority: task.priority || 'Medium'
+      priority: task.priority || 'Medium',
+      taskType: task.taskType || '',
+      invoiceAmount: task.invoiceAmount || ''
     });
     setShowTaskModal(true);
   };
 
   const handleSaveTask = async () => {
-    const { title, description, status, priority, assignedTo, dueDate } = taskForm;
+    const { title, description, status, priority, assignedTo, dueDate, taskType, invoiceAmount } = taskForm;
 
-    if (!title || !assignedTo) {
-      showToastMessage("Title and Assigned To are required!");
+    if (!title || !assignedTo || !taskType) {
+      showToastMessage("Title, Task Type and Assigned To are required!");
       return;
     }
 
@@ -148,21 +187,32 @@ const TaskManagement = () => {
       status,
       priority,
       assignedTo,
-      dueDate
+      dueDate,
+      taskType,
+      invoiceAmount: parseFloat(invoiceAmount) || 0
     };
 
     try {
       let response;
       if (currentTask) {
-        response = await axiosInstance.patch(`tasks/updateTask/${currentTask.id}`, payload);
+        // Update existing task
+        const updatedTasks = tasks.map(task => 
+          task.id === currentTask.id ? { ...task, ...payload } : task
+        );
+        setTasks(updatedTasks);
+        showToastMessage("Task updated successfully!");
       } else {
-        response = await axiosInstance.post("tasks/addTask", payload);
+        // Add new task
+        const newTask = {
+          id: Math.max(...tasks.map(t => t.id), 0) + 1,
+          ...payload
+        };
+        setTasks([...tasks, newTask]);
+        showToastMessage("Task created successfully!");
       }
-
-      showToastMessage(currentTask ?"Task created successfully!": "Task updated successfully!"  );
+      
       setShowTaskModal(false);
       resetTaskForm();
-      fetchTasks();
     } catch (error) {
       console.error("Error:", error);
       showToastMessage("Server error. Please try again.");
@@ -172,9 +222,8 @@ const TaskManagement = () => {
   const handleDeleteTask = async (taskId) => {
     if (window.confirm('Are you sure you want to delete this task?')) {
       try {
-        await axiosInstance.delete(`tasks/deleteTask/${taskId}`);
+        setTasks(tasks.filter(task => task.id !== taskId));
         showToastMessage('Task deleted successfully!');
-        fetchTasks();
       } catch (error) {
         console.error("Error:", error);
         showToastMessage("Failed to delete task");
@@ -184,7 +233,7 @@ const TaskManagement = () => {
 
    useEffect(()=>{
 fetchUser()
-  },)
+  },[])
 
   const fetchUser =async()=>{
 try {
@@ -247,9 +296,11 @@ try {
     const status = task.status || '';
     const priority = task.priority || '';
     const assignedTo = task.assignedTo || '';
+    const taskType = task.taskType || '';
 
     const matchesSearch = title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      description.toLowerCase().includes(searchTerm.toLowerCase());
+      description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      taskType.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === 'All' || status === filterStatus;
     const matchesPriority = filterPriority === 'All' || priority === filterPriority;
 
@@ -284,7 +335,12 @@ try {
     return user ? user.permissions[permission] : false;
   };
 
- 
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount || 0);
+  };
 
   return (
     <div className="">
@@ -410,9 +466,11 @@ try {
                   <thead>
                     <tr>
                       <th>Title</th>
+                      <th>Task Type</th>
                       <th>Description</th>
                       <th>Assigned To</th>
                       <th>Due Date</th>
+                      <th>Invoice Amount</th>
                       <th>Priority</th>
                       <th>Status</th>
                       <th>Actions</th>
@@ -423,9 +481,11 @@ try {
                       filteredTasks.map(task => (
                         <tr key={task.id}>
                           <td>{task.title || 'N/A'}</td>
+                          <td>{task.taskType || 'N/A'}</td>
                           <td>{task.description || 'N/A'}</td>
-                          <td>{users.find(u => u.email === task.assignedToName)?.name || task.assignedToName || 'N/A'}</td>
+                          <td>{users.find(u => u.email === task.assignedTo)?.name || task.assignedTo || 'N/A'}</td>
                           <td>{task.dueDate || 'N/A'}</td>
+                          <td>{formatCurrency(task.invoiceAmount)}</td>
                           <td>
                             <Badge bg={getPriorityBadge(task.priority)}>
                               {task.priority || 'N/A'}
@@ -461,7 +521,7 @@ try {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="7" className="text-center">No tasks found</td>
+                        <td colSpan="9" className="text-center">No tasks found</td>
                       </tr>
                     )}
                   </tbody>
@@ -487,6 +547,7 @@ try {
                     required
                   />
                 </Form.Group>
+
                 <Form.Group className="mb-3">
                   <Form.Label>Description</Form.Label>
                   <Form.Control
@@ -497,6 +558,53 @@ try {
                     onChange={handleTaskFormChange}
                   />
                 </Form.Group>
+
+                <Row className="mb-3">
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label>Task Type</Form.Label>
+                      <Form.Select
+                        name="taskType"
+                        value={taskForm.taskType}
+                        onChange={handleTaskFormChange}
+                        required
+                      >
+                        <option value="">Select Task Type</option>
+                        <optgroup label="Tax Services">
+                          <option value="Personal Tax Preparation">Personal Tax Preparation</option>
+                          <option value="Corporate Tax Preparation">Corporate Tax Preparation</option>
+                          <option value="Tax Problem Resolution">Tax Problem Resolution / Offer & Compromise</option>
+                          <option value="Penalty Abatement">Penalty Abatement</option>
+                          <option value="Federal State Representation">Federal/State Representation</option>
+                        </optgroup>
+                        <optgroup label="Bookkeeping / Accounting Services">
+                          <option value="Marked Financial Statements">Marked Financial Statements</option>
+                          <option value="Quickbooks Financial Statements">Quickbooks Financial Statements</option>
+                          <option value="Payroll">Payroll</option>
+                          <option value="Sales Tax">Sales Tax</option>
+                          <option value="Initial QB Setup">Initial QB Setup: Chart of Accounts & GL</option>
+                          <option value="Audit Services">Audit Services</option>
+                        </optgroup>
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label>Invoice Amount</Form.Label>
+                      <Form.Control
+                        type="number"
+                        name="invoiceAmount"
+                        value={taskForm.invoiceAmount}
+                        onChange={handleTaskFormChange}
+                        placeholder="Enter Amount"
+                        min="0"
+                        step="0.01"
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+
                 <Row className="mb-3">
                   <Col md={6}>
                     <Form.Group>
@@ -512,6 +620,7 @@ try {
                       </Form.Select>
                     </Form.Group>
                   </Col>
+
                   <Col md={6}>
                     <Form.Group>
                       <Form.Label>Priority</Form.Label>
@@ -528,6 +637,7 @@ try {
                     </Form.Group>
                   </Col>
                 </Row>
+
                 <Row className="mb-3">
                   <Col md={6}>
                     <Form.Group>
@@ -545,6 +655,7 @@ try {
                       </Form.Select>
                     </Form.Group>
                   </Col>
+
                   <Col md={6}>
                     <Form.Group>
                       <Form.Label>Due Date</Form.Label>
@@ -559,6 +670,7 @@ try {
                 </Row>
               </Form>
             </Modal.Body>
+
             <Modal.Footer>
               <Button variant="secondary" onClick={() => { setShowTaskModal(false); resetTaskForm(); }}>
                 Close
@@ -569,11 +681,18 @@ try {
             </Modal.Footer>
           </Modal>
 
-          {/* User Modal */}
-        
-
           {/* Toast Notification */}
-         
+          <Toast 
+            show={showToast} 
+            onClose={() => setShowToast(false)} 
+            className="position-fixed bottom-0 end-0 m-3"
+            bg="success"
+          >
+            <Toast.Header>
+              <strong className="me-auto">Notification</strong>
+            </Toast.Header>
+            <Toast.Body className="text-white">{toastMessage}</Toast.Body>
+          </Toast>
         </Container>
       </div>
     </div>
