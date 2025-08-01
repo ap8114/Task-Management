@@ -1,15 +1,19 @@
-import React, { useState } from 'react';
-import { Card, Row, Col, Form, Button, Badge } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Card, Row, Col, Form, Button, Badge, Spinner } from 'react-bootstrap';
 import { Bar, Pie } from 'react-chartjs-2';
 import 'chart.js/auto';
+import axiosInstance from '../../../Utilities/axiosInstance';
 
 const Dashboard = () => {
-    // Sample data state
     const [filters, setFilters] = useState({
         employee: 'all',
         dateRange: 'today',
         taskType: 'all'
     });
+
+    const [dashboardData, setDashboardData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     // Task type categories
     const taskTypeCategories = {
@@ -20,7 +24,7 @@ const Dashboard = () => {
             'Penalty Abatement',
             'Federal/State Representation'
         ],
-        'Bookkeeping/Accounting Services': [
+        'Accounting Services': [
             'Marked Financial Statements',
             'Quickbooks Financial Statements',
             'Payroll',
@@ -30,56 +34,31 @@ const Dashboard = () => {
         ]
     };
 
-    // Sample data with updated task types
-    const dashboardData = {
-        totalTasks: 124,
-        completedToday: 18,
-        pendingTasks: 42,
-        overdueTasks: 7,
-        netInvoiceAmount: 5240,
-        tasksByCategory: {
-            labels: ['Tax Services', 'Bookkeeping/Accounting Services'],
-            data: [70, 54] // Sum of individual tasks in each category
-        },
-        completionRate: 72,
-        recentTasks: [
-            { id: 1, title: 'Client tax filing - John Smith', type: 'Personal Tax Preparation', due: 'Today', status: 'In Progress' },
-            { id: 2, title: 'ABC Corp quarterly taxes', type: 'Corporate Tax Preparation', due: 'Today', status: 'Completed' },
-            { id: 3, title: 'Financial statements review', type: 'Marked Financial Statements', due: 'Tomorrow', status: 'Pending' },
-            { id: 4, title: 'IRS penalty abatement case', type: 'Penalty Abatement', due: 'Overdue', status: 'Overdue' }
-        ]
+    // Format currency
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+        }).format(amount || 0);
     };
 
-    // Chart data - now showing only two categories
-    const tasksByCategoryChart = {
-        labels: dashboardData.tasksByCategory.labels,
-        datasets: [
-            {
-                label: 'Tasks by Category',
-                data: dashboardData.tasksByCategory.data,
-                backgroundColor: [
-                    'rgba(54, 162, 235, 0.7)',   // Blue for Tax Services
-                    'rgba(255, 99, 132, 0.7)'    // Red for Bookkeeping/Accounting
-                ],
-                borderColor: [
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 99, 132, 1)'
-                ],
-                borderWidth: 1
+    // Fetch dashboard data from API
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                setLoading(true);
+                const response = await axiosInstance.get('/dashboard/getDashboardData');
+                setDashboardData(response.data.data);
+                setLoading(false);
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+                setError('Failed to load dashboard data');
+                setLoading(false);
             }
-        ]
-    };
+        };
 
-    const completionChart = {
-        labels: ['Completed', 'Pending'],
-        datasets: [
-            {
-                data: [dashboardData.completionRate, 100 - dashboardData.completionRate],
-                backgroundColor: ['#4bc0c0', '#ff6384'],
-                hoverBackgroundColor: ['#36a2a2', '#ff4569']
-            }
-        ]
-    };
+        fetchDashboardData();
+    }, []);
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
@@ -90,19 +69,98 @@ const Dashboard = () => {
     };
 
     const getStatusBadge = (status) => {
-        switch (status) {
-            case 'Completed':
+        if (!status) return 'secondary';
+        
+        switch (status.toLowerCase()) {
+            case 'completed':
                 return 'success';
-            case 'In Progress':
+            case 'in progress':
                 return 'primary';
-            case 'Pending':
+            case 'pending':
                 return 'warning';
-            case 'Overdue':
+            case 'overdue':
                 return 'danger';
             default:
                 return 'secondary';
         }
     };
+
+    // Prepare chart data based on API response
+    const prepareChartData = () => {
+        if (!dashboardData) return { tasksByCategory: null, completionChart: null };
+
+        // Group tasks by category (Tax Services vs Accounting Services)
+        const taxServicesCount = dashboardData.tasks.filter(task => 
+            taskTypeCategories['Tax Services'].includes(task.taskType)
+        ).length;
+
+        const accountingServicesCount = dashboardData.tasks.filter(task => 
+            taskTypeCategories['Accounting Services'].includes(task.taskType)
+        ).length;
+
+        const tasksByCategory = {
+            labels: ['Tax Services', 'Accounting Services'],
+            datasets: [
+                {
+                    label: 'Tasks by Category',
+                    data: [taxServicesCount, accountingServicesCount],
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.7)',   // Blue for Tax Services
+                        'rgba(255, 99, 132, 0.7)'    // Red for Accounting Services
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 99, 132, 1)'
+                    ],
+                    borderWidth: 1
+                }
+            ]
+        };
+
+        // Completion rate (assuming completed vs not completed)
+        const completedCount = dashboardData.tasks.filter(task => task.status === 'Completed').length;
+        const totalCount = dashboardData.tasks.length || 1;
+        const completionRate = Math.round((completedCount / totalCount) * 100);
+
+        const completionChart = {
+            labels: ['Completed', 'Incomplete'],
+            datasets: [
+                {
+                    data: [completionRate, 100 - completionRate],
+                    backgroundColor: ['#4bc0c0', '#ff6384'],
+                    hoverBackgroundColor: ['#36a2a2', '#ff4569']
+                }
+            ]
+        };
+
+        return { tasksByCategory, completionChart };
+    };
+
+    const { tasksByCategory, completionChart } = prepareChartData();
+
+    if (loading) {
+        return (
+            <div className="d-flex justify-content-center align-items-center" style={{ height: '80vh' }}>
+                <Spinner animation="border" variant="primary" />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="alert alert-danger">
+                {error}
+                <Button variant="link" onClick={() => window.location.reload()}>Retry</Button>
+            </div>
+        );
+    }
+
+    if (!dashboardData) {
+        return <div className="alert alert-warning">No data available</div>;
+    }
+
+    // Filter out tasks with null titles for the recent tasks list
+    const validTasks = dashboardData.tasks.filter(task => task.title);
 
     return (
         <div className="container-fluid py-4">
@@ -172,70 +230,59 @@ const Dashboard = () => {
                 </Col>
             </Row>
 
-            {/* Invoice Amount and Charts */}
+            {/* Charts */}
             <Row className="mb-4">
-                <Col lg={4} md={12} className="mb-4">
-                    <Card className="h-100 shadow-sm">
-                        <Card.Body>
-                            <h6 className="text-muted mb-3">Net Invoice Amount</h6>
-                            <h2 className="mb-4">${dashboardData.netInvoiceAmount.toLocaleString()}</h2>
-                            <div className="d-flex justify-content-between">
-                                <div>
-                                    <span className="text-muted">Daily Average</span>
-                                    <h5 className="mb-0">$1,240</h5>
-                                </div>
-                                <div>
-                                    <span className="text-muted">Monthly Total</span>
-                                    <h5 className="mb-0">$37,200</h5>
-                                </div>
-                            </div>
-                        </Card.Body>
-                    </Card>
-                </Col>
-                <Col lg={4} md={6} sm={12} className="mb-4">
+                <Col lg={6} md={12} className="mb-4">
                     <Card className="h-100 shadow-sm">
                         <Card.Body>
                             <h6 className="text-muted mb-3">Tasks by Category</h6>
-                            <div style={{ height: '250px' }}>
-                                <Bar
-                                    data={tasksByCategoryChart}
-                                    options={{
-                                        responsive: true,
-                                        maintainAspectRatio: false,
-                                        plugins: {
-                                            legend: {
-                                                display: true,
-                                                position: 'bottom'
+                            <div style={{ height: '300px' }}>
+                                {tasksByCategory ? (
+                                    <Bar
+                                        data={tasksByCategory}
+                                        options={{
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            plugins: {
+                                                legend: {
+                                                    position: 'bottom'
+                                                }
+                                            },
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: true
+                                                }
                                             }
-                                        },
-                                        scales: {
-                                            y: {
-                                                beginAtZero: true
-                                            }
-                                        }
-                                    }}
-                                />
+                                        }}
+                                    />
+                                ) : (
+                                    <div className="text-muted">No category data available</div>
+                                )}
                             </div>
                         </Card.Body>
                     </Card>
                 </Col>
-                <Col lg={4} md={6} sm={12} className="mb-4">
+                <Col lg={6} md={12} className="mb-4">
                     <Card className="h-100 shadow-sm">
                         <Card.Body>
                             <h6 className="text-muted mb-3">Completion Rate</h6>
-                            <div style={{ height: '250px' }}>
-                                <Pie
-                                    data={completionChart}
-                                    options={{
-                                        responsive: true,
-                                        maintainAspectRatio: false,
-                                        plugins: {
-                                            legend: {
-                                                position: 'bottom'
+                            <div style={{ height: '300px' }}>
+                                {completionChart ? (
+                                    <Pie
+                                        data={completionChart}
+                                        options={{
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            plugins: {
+                                                legend: {
+                                                    position: 'bottom'
+                                                }
                                             }
-                                        }
-                                    }}
-                                />
+                                        }}
+                                    />
+                                ) : (
+                                    <div className="text-muted">No completion data available</div>
+                                )}
                             </div>
                         </Card.Body>
                     </Card>
@@ -256,9 +303,8 @@ const Dashboard = () => {
                                         onChange={handleFilterChange}
                                     >
                                         <option value="all">All Employees</option>
-                                        <option value="john">John Doe</option>
-                                        <option value="jane">Jane Smith</option>
-                                        <option value="mike">Mike Johnson</option>
+                                        <option value="4">Amit Verma</option>
+                                        <option value="5">Neha Gupta</option>
                                     </Form.Select>
                                 </Form.Group>
                             </Col>
@@ -279,23 +325,15 @@ const Dashboard = () => {
                             </Col>
                             <Col md={4}>
                                 <Form.Group controlId="taskTypeFilter">
-                                    <Form.Label>Task Type</Form.Label>
+                                    <Form.Label>Task Category</Form.Label>
                                     <Form.Select
                                         name="taskType"
                                         value={filters.taskType}
                                         onChange={handleFilterChange}
                                     >
-                                        <option value="all">All Types</option>
-                                        <optgroup label="Tax Services">
-                                            {taskTypeCategories['Tax Services'].map(type => (
-                                                <option key={type} value={type}>{type}</option>
-                                            ))}
-                                        </optgroup>
-                                        <optgroup label="Bookkeeping/Accounting Services">
-                                            {taskTypeCategories['Bookkeeping/Accounting Services'].map(type => (
-                                                <option key={type} value={type}>{type}</option>
-                                            ))}
-                                        </optgroup>
+                                        <option value="all">All Categories</option>
+                                        <option value="Tax Services">Tax Services</option>
+                                        <option value="Accounting Services">Accounting Services</option>
                                     </Form.Select>
                                 </Form.Group>
                             </Col>
@@ -315,28 +353,36 @@ const Dashboard = () => {
                             <thead>
                                 <tr>
                                     <th>Task</th>
-                                    <th>Type</th>
+                                    <th>Task Type</th>
+                                    <th>Invoice Amount</th>
+                                    <th>Assigned To</th>
                                     <th>Due Date</th>
                                     <th>Status</th>
-                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {dashboardData.recentTasks.map(task => (
-                                    <tr key={task.id}>
-                                        <td>{task.title}</td>
-                                        <td>{task.type}</td>
-                                        <td>{task.due}</td>
-                                        <td>
-                                            <Badge bg={getStatusBadge(task.status)}>
-                                                {task.status}
-                                            </Badge>
-                                        </td>
-                                        <td>
-                                            <Button variant="outline-primary" size="sm">View</Button>
+                                {validTasks.length > 0 ? (
+                                    validTasks.map(task => (
+                                        <tr key={task.id}>
+                                            <td>{task.title}</td>
+                                            <td>{task.taskType || 'N/A'}</td>
+                                            <td>{formatCurrency(task.invoiceAmount)}</td>
+                                            <td>{task.assignedToName || 'Unassigned'}</td>
+                                            <td>{task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '-'}</td>
+                                            <td>
+                                                <Badge bg={getStatusBadge(task.status)}>
+                                                    {task.status || 'Unassigned'}
+                                                </Badge>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="6" className="text-center text-muted py-4">
+                                            No tasks found
                                         </td>
                                     </tr>
-                                ))}
+                                )}
                             </tbody>
                         </table>
                     </div>
