@@ -83,7 +83,7 @@ const NotificationsPage = () => {
   };
 
   return (
-    <Container fluid className="py-4">
+    <div className="p-3">
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-3">
               <h3 className="fw-bold text-dark"> Notifications</h3>
               <Button variant="outline-primary" size="sm" onClick={markAllAsRead}>
@@ -176,7 +176,7 @@ const NotificationsPage = () => {
           </Card>
         </Col>
       </Row>
-    </Container>
+    </div>
   );
 };
 

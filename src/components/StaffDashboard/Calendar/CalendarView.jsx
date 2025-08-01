@@ -9,26 +9,26 @@ const CalendarView = () => {
   const [error, setError] = useState(null);
   const [currentDate, setCurrentDate] = useState(moment());
   const [viewMode, setViewMode] = useState("week"); // 'day', 'week', or 'month'
-
+  const userId = localStorage.getItem("userId");
   // Fetch tasks from API
   useEffect(() => {
     const fetchTasks = async () => {
       try {
         const response = await axios.get(
-          "https://projectmanagement-backend-production.up.railway.app/api/employeeTask/getEmployeeTaskById/2"
+          `https://projectmanagement-backend-production.up.railway.app/api/employeeTask/getEmployeeTaskById/${userId}`
         );
-
+        
         // Transform API data to match our expected format
         const transformedTasks = [{
           id: response.data.data.id,
           title: response.data.data.title,
           date: response.data.data.startDateTime.split('T')[0],
-          time: "10:00", // Default time since API doesn't provide
-          duration: 60, // Default duration
+          time: "", 
+          duration: "",
           status: response.data.data.status,
           description: response.data.data.description
         }];
-
+        
         setTasks(transformedTasks);
         setLoading(false);
       } catch (err) {

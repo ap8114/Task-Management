@@ -14,6 +14,7 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [userid, setuserid] = useState("");
 
   const roleCredentials = {
     Admin: { email: "admin@example.com", password: "admin@123" },
@@ -21,48 +22,55 @@ const LoginPage = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
+  e.preventDefault();
+  setError("");
 
-    if (!role) {
-      setError("Please select a role.");
-      return;
-    }
+  if (!role) {
+    setError("Please select a role.");
+    return;
+  }
 
-    setIsLoading(true);
+  setIsLoading(true);
 
-    try {
-      const response = await axios.post(
-        `${BaseUrl}user/login`,
-        {
-          email,
-          password
-        }
-      );
-
-      console.log(response);
-      
-
-      if (response?.data?.status) {
-        localStorage.setItem("authToken", response.data.data.token);
-        localStorage.setItem("userRole", role);
-        localStorage.setItem("userEmail", email);
-        localStorage.setItem("userData", JSON.stringify({ role, email }));
-
-        if (role == "Admin") {
-          navigate("/admin-dashboard");
-        } else if (role == "Staff") {
-          navigate("/staff-dashboard");
-        }
-      } else {
-        setError(response.data.message || "Invalid email or password.");
+  try {
+    const response = await axios.post(
+      `${BaseUrl}user/login`,
+      {
+        email,
+        password
       }
-    } catch (err) {
-      setError(err.response?.data?.message || "Login failed. Please try again.");
-    } finally {
-      setIsLoading(false);
+    );
+
+    console.log(response);
+    
+    if (response?.data?.status) {
+      const userId = response.data.data.userId || response.data.data.id; // Adjust based on your API response structure
+      setuserid(userId); // Set the userid state
+      
+      localStorage.setItem("authToken", response.data.data.token);
+      localStorage.setItem("userRole", role);
+      localStorage.setItem("userEmail", email);
+      localStorage.setItem("userId", userId); // Save userId separately
+      localStorage.setItem("userData", JSON.stringify({ 
+        role, 
+        email, 
+        userId 
+      }));
+
+      if (role == "Admin") {
+        navigate("/admin-dashboard");
+      } else if (role == "Staff") {
+        navigate("/staff-dashboard");
+      }
+    } else {
+      setError(response.data.message || "Invalid email or password.");
     }
-  };
+  } catch (err) {
+    setError(err.response?.data?.message || "Login failed. Please try again.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleRoleSelect = (selectedRole) => {
     setRole(selectedRole);
