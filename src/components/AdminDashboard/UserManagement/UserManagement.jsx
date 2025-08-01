@@ -26,8 +26,6 @@ const UserManagement = () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get("user/getAllUsers");
-      console.log(res);
-      
       setUsers(res?.data?.data);
       setLoading(false);
     } catch (error) {
@@ -36,12 +34,6 @@ const UserManagement = () => {
       setLoading(false);
     }
   };
-
-  useEffect(()=>{
-    if (users) {
-      console.log(users);
-    }
-  },[users])
 
   useEffect(() => {
     fetchUsers();
@@ -58,7 +50,7 @@ const UserManagement = () => {
       name: '',
       email: '',
       role: 'Viewer',
-      password:'',
+      password: '', // Initialize password as empty string
       permissions: {
         can_view: true,
         can_edit: false,
@@ -72,7 +64,12 @@ const UserManagement = () => {
 
   const handleShowEdit = (user) => {
     setIsEditMode(true);
-    setCurrentUser(JSON.parse(JSON.stringify(user)));
+    // Don't include password in edit mode for security reasons
+    const userToEdit = {
+      ...user,
+      password: '' // Reset password field in edit mode
+    };
+    setCurrentUser(userToEdit);
     setShowModal(true);
   };
 
@@ -109,15 +106,26 @@ const UserManagement = () => {
   const handleSave = async () => {
     try {
       if (isEditMode) {
-        // Update existing user
-        await axiosInstance.patch(`user/updateUser/${currentUser.id}`, currentUser);
+        // For edit, only send password if it's been changed
+        const userToUpdate = { ...currentUser };
+        if (!userToUpdate.password) {
+          delete userToUpdate.password; // Remove password field if empty
+        }
+        
+        await axiosInstance.patch(`user/updateUser/${currentUser.id}`, userToUpdate);
         setUsers(users.map(user => user.id === currentUser.id ? currentUser : user));
       } else {
-        // Add new user
+        // For add, require password
+        if (!currentUser.password) {
+          setError("Password is required for new users");
+          return;
+        }
+        
         const response = await axiosInstance.post("user/addUser", currentUser);
         setUsers([...users, response.data]);
       }
       handleClose();
+      setError(null);
     } catch (error) {
       console.error("Failed to save user", error);
       setError("Failed to save user. Please try again.");
@@ -219,10 +227,10 @@ const UserManagement = () => {
                     <td>{user?.email}</td>
                     <td>
                       <Badge bg={
-                        user?.role == 'Admin' ? 'danger' :
-                        user?.role == 'Editor' ? 'warning' : 
-                        user?.role == 'Office Manager' ? 'primary' :
-                        user?.role == 'Staff CPA' ? 'info' : 'secondary'
+                        user?.role === 'Admin' ? 'danger' :
+                        user?.role === 'Editor' ? 'warning' : 
+                        user?.role === 'Office Manager' ? 'primary' :
+                        user?.role === 'Staff CPA' ? 'info' : 'secondary'
                       }>
                         {user?.role}
                       </Badge>
@@ -238,10 +246,10 @@ const UserManagement = () => {
                     <td>
                       <Dropdown>
                         <Dropdown.Toggle variant="light" size="sm">
-                          {user?.assignedTasks.length} tasks
+                          {user?.assignedTasks?.length || 0} tasks
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
-                          {user?.assignedTasks.length > 0 ? (
+                          {user?.assignedTasks?.length > 0 ? (
                             user?.assignedTasks.map(task => (
                               <Dropdown.Item key={task}>{task}</Dropdown.Item>
                             ))
@@ -301,6 +309,7 @@ const UserManagement = () => {
                       value={currentUser.name}
                       onChange={handleInputChange}
                       placeholder="Enter full name"
+                      required
                     />
                   </Form.Group>
                 </Col>
@@ -313,6 +322,7 @@ const UserManagement = () => {
                       value={currentUser.email}
                       onChange={handleInputChange}
                       placeholder="Enter email"
+                      required
                     />
                   </Form.Group>
                 </Col>
@@ -320,15 +330,21 @@ const UserManagement = () => {
 
               <Row className="mb-3">
                 <Col md={6}>
-                  <Form.Group controlId="formEmail">
+                  <Form.Group controlId="formPassword">
                     <Form.Label>Password</Form.Label>
                     <Form.Control
                       type="password"
                       name="password"
                       value={currentUser.password}
                       onChange={handleInputChange}
-                      placeholder="Enter password"
+                      placeholder={isEditMode ? "Leave blank to keep current" : "Enter password"}
+                      required={!isEditMode}
                     />
+                    {isEditMode && (
+                      <Form.Text className="text-muted">
+                        Leave password blank to keep current password
+                      </Form.Text>
+                    )}
                   </Form.Group>
                 </Col>
                 <Col md={6}>
@@ -338,6 +354,7 @@ const UserManagement = () => {
                       name="role"
                       value={currentUser.role}
                       onChange={handleInputChange}
+                      required
                     >
                       <option value="Admin">Admin</option>
                       <option value="Editor">Editor</option>
