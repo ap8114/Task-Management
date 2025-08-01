@@ -114,7 +114,7 @@ const TaskManagementCalendar = () => {
     const taskData = {
       title: formData.title,
       description: formData.description,
-      assignedTo: formData.assignedTo,
+      assignedTo: parseInt(formData.assignedTo),
       startDateTime: moment(formData.start).toISOString(),
       endDateTime: moment(formData.end).toISOString(),
       status: formData.status
