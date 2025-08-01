@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Button, Dropdown, Card, Badge, Modal, Form } from 'react-bootstrap';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import axios from 'axios';
+import axiosInstance from '../../../Utilities/axiosInstance';
 
 // Set up the localizer by providing moment
 const localizer = momentLocalizer(moment);
@@ -24,62 +26,55 @@ const TaskManagementCalendar = () => {
     description: '',
     start: '',
     end: '',
-    employee: '',
-    status: 'pending'
+    assignedTo: '',
+    status: 'Pending'
   });
+  // State for loading
+  const [loading, setLoading] = useState(true);
+  // State for employees
+  const [employees, setEmployees] = useState([]);
+  // State for tasks
+  const [tasks, setTasks] = useState([]);
 
-  // Sample employees data
-  const employees = [
-    { id: 'emp1', name: 'John Doe' },
-    { id: 'emp2', name: 'Jane Smith' },
-    { id: 'emp3', name: 'Robert Johnson' },
-    { id: 'emp4', name: 'Emily Davis' },
-  ];
+  // API base URL
 
-  // Sample tasks data
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: 'Project Kickoff',
-      description: 'Initial meeting with client',
-      start: new Date(2023, 5, 1, 10, 0),
-      end: new Date(2023, 5, 1, 11, 30),
-      employee: 'emp1',
-      status: 'completed'
-    },
-    {
-      id: 2,
-      title: 'UI Design Review',
-      description: 'Review wireframes with design team',
-      start: new Date(2023, 5, 3, 14, 0),
-      end: new Date(2023, 5, 3, 15, 30),
-      employee: 'emp2',
-      status: 'in-progress'
-    },
-    {
-      id: 3,
-      title: 'Development Sprint',
-      description: 'Work on feature implementation',
-      start: new Date(2023, 5, 5, 9, 0),
-      end: new Date(2023, 5, 5, 17, 0),
-      employee: 'emp3',
-      status: 'pending'
-    },
-    {
-      id: 4,
-      title: 'Client Demo',
-      description: 'Show progress to client',
-      start: new Date(2023, 5, 8, 13, 0),
-      end: new Date(2023, 5, 8, 14, 0),
-      employee: 'emp4',
-      status: 'pending'
-    },
-  ]);
+  // Fetch employees and tasks on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch employees
+        const employeesResponse = await axiosInstance.get("user/getAllUsers");
+        setEmployees(employeesResponse.data?.data || []);
+        
+        // Fetch tasks
+        const tasksResponse = await axiosInstance.get("employeeTask/getAllEmployeeTasks");
+        const formattedTasks = (tasksResponse.data?.data || []).map(task => ({
+          ...task,
+          id: task._id || Math.random().toString(36).substr(2, 9),
+          start: task.startDateTime ? new Date(task.startDateTime) : new Date(),
+          end: task.endDateTime ? new Date(task.endDateTime) : new Date(),
+          employee: task.assignedTo ? task.assignedTo.toString() : '',
+          status: task.status || 'Pending'
+        }));
+        setTasks(formattedTasks);
+        
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, []);
 
   // Filter tasks based on selected filters
   const filteredTasks = tasks.filter(task => {
     const employeeMatch = employeeFilter === 'all' || task.employee === employeeFilter;
-    const statusMatch = statusFilter === 'all' || task.status === statusFilter;
+    const statusMatch = statusFilter === 'all' || 
+                       (task.status && task.status.toLowerCase() === statusFilter.toLowerCase());
     return employeeMatch && statusMatch;
   });
 
@@ -87,12 +82,12 @@ const TaskManagementCalendar = () => {
   const handleSelectEvent = (event) => {
     setSelectedTask(event);
     setFormData({
-      title: event.title,
-      description: event.description,
-      start: event.start,
-      end: event.end,
-      employee: event.employee,
-      status: event.status
+      title: event.title || '',
+      description: event.description || '',
+      start: event.start || new Date(),
+      end: event.end || new Date(),
+      assignedTo: event.assignedTo || '',
+      status: event.status || 'Pending'
     });
     setShowModal(true);
   };
@@ -107,26 +102,51 @@ const TaskManagementCalendar = () => {
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (selectedTask) {
-      // Update existing task
-      const updatedTasks = tasks.map(task =>
-        task.id === selectedTask.id ? { ...task, ...formData } : task
-      );
-      setTasks(updatedTasks);
-    } else {
-      // Add new task
-      const newTask = {
-        id: tasks.length + 1,
-        ...formData,
-        start: new Date(formData.start),
-        end: new Date(formData.end)
+    
+    try {
+      const taskData = {
+        title: formData.title,
+        description: formData.description,
+        assignedTo: formData.assignedTo,
+        startDateTime: moment(formData.start).format('YYYY-MM-DD'),
+        endDateTime: moment(formData.end).format('YYYY-MM-DD'),
+        status: formData.status
       };
-      setTasks([...tasks, newTask]);
+
+      if (selectedTask) {
+        // Update existing task
+        await axiosInstance.patch(`employeeTask/updateEmployeeTask/${selectedTask.id}`, taskData);
+        const updatedTasks = tasks.map(task =>
+          task.id === selectedTask.id ? { 
+            ...task, 
+            ...taskData,
+            start: new Date(taskData.startDateTime),
+            end: new Date(taskData.endDateTime),
+            employee: taskData.assignedTo ? taskData.assignedTo.toString() : ''
+          } : task
+        );
+        setTasks(updatedTasks);
+      } else {
+        // Add new task
+        const response = await axiosInstance.post("employeeTask/addEmployeeTask", taskData);
+        const newTask = {
+          ...response.data?.data,
+          id: response.data?.data?._id || Math.random().toString(36).substr(2, 9),
+          start: response.data?.data?.startDateTime ? new Date(response.data.data.startDateTime) : new Date(),
+          end: response.data?.data?.endDateTime ? new Date(response.data.data.endDateTime) : new Date(),
+          employee: response.data?.data?.assignedTo ? response.data.data.assignedTo.toString() : '',
+          status: response.data?.data?.status || 'Pending'
+        };
+        setTasks([...tasks, newTask]);
+      }
+      
+      setShowModal(false);
+      setSelectedTask(null);
+    } catch (error) {
+      console.error('Error saving task:', error);
     }
-    setShowModal(false);
-    setSelectedTask(null);
   };
 
   // Handle slot selection (for adding new events)
@@ -137,33 +157,45 @@ const TaskManagementCalendar = () => {
       description: '',
       start: slotInfo.start,
       end: slotInfo.end,
-      employee: '',
-      status: 'pending'
+      assignedTo: '',
+      status: 'Pending'
     });
     setShowModal(true);
   };
 
   // Custom event component
   const EventComponent = ({ event }) => {
-    const employee = employees.find(emp => emp.id === event.employee);
+    const employee = employees.find(emp => emp._id?.toString() === event.employee);
     const statusColors = {
-      'completed': 'success',
-      'in-progress': 'warning',
-      'pending': 'danger'
+      'Completed': 'success',
+      'In Progress': 'warning',
+      'Pending': 'danger'
     };
 
     return (
       <div className="p-1">
-        <strong>{event.title}</strong>
+        <strong>{event.title || 'No Title'}</strong>
         <div>
-          <Badge pill bg={statusColors[event.status]} className="me-1">
-            {event.status}
+          <Badge pill bg={statusColors[event.status] || 'primary'} className="me-1">
+            {event.status || 'Unknown'}
           </Badge>
           {employee && <small>{employee.name}</small>}
         </div>
       </div>
     );
   };
+
+  if (loading) {
+    return (
+      <Container fluid className="py-4">
+        <div className="text-center">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      </Container>
+    );
+  }
 
   return (
     <Container fluid className="py-4">
@@ -202,16 +234,16 @@ const TaskManagementCalendar = () => {
                 <Dropdown.Toggle variant="outline-secondary" size="sm" className="w-100 text-start">
                   {employeeFilter === 'all'
                     ? 'All Employees'
-                    : employees.find((e) => e.id === employeeFilter)?.name || 'Select Employee'}
+                    : employees.find((e) => e.id.toString() === employeeFilter)?.name || 'Select Employee'}
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="w-100">
                   <Dropdown.Item onClick={() => setEmployeeFilter('all')}>All Employees</Dropdown.Item>
                   <Dropdown.Divider />
                   {employees.map((emp) => (
                     <Dropdown.Item
-                      key={emp.id}
-                      onClick={() => setEmployeeFilter(emp.id)}
-                      active={employeeFilter === emp.id}
+                      key={emp._id}
+                      onClick={() => setEmployeeFilter(emp.id.toString())}
+                      active={employeeFilter === emp.id.toString()}
                     >
                       {emp.name}
                     </Dropdown.Item>
@@ -231,18 +263,18 @@ const TaskManagementCalendar = () => {
                 <Dropdown.Toggle variant="outline-secondary" size="sm" className="w-100 text-start">
                   {statusFilter === 'all'
                     ? 'All Statuses'
-                    : statusFilter.split('-').map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join(' ')}
+                    : statusFilter}
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="w-100">
                   <Dropdown.Item onClick={() => setStatusFilter('all')}>All Statuses</Dropdown.Item>
                   <Dropdown.Divider />
-                  {['pending', 'in-progress', 'completed'].map((status) => (
+                  {['Pending', 'In Progress', 'Completed'].map((status) => (
                     <Dropdown.Item
                       key={status}
                       onClick={() => setStatusFilter(status)}
                       active={statusFilter === status}
                     >
-                      {status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ')}
+                      {status}
                     </Dropdown.Item>
                   ))}
                 </Dropdown.Menu>
@@ -270,7 +302,6 @@ const TaskManagementCalendar = () => {
         </Col>
       </Row>
 
-
       {/* Calendar */}
       <Row>
         <Col>
@@ -293,13 +324,13 @@ const TaskManagementCalendar = () => {
                 eventPropGetter={(event) => {
                   let backgroundColor = '';
                   switch (event.status) {
-                    case 'completed':
+                    case 'Completed':
                       backgroundColor = '#28a745';
                       break;
-                    case 'in-progress':
+                    case 'In Progress':
                       backgroundColor = '#ffc107';
                       break;
-                    case 'pending':
+                    case 'Pending':
                       backgroundColor = '#dc3545';
                       break;
                     default:
@@ -337,14 +368,14 @@ const TaskManagementCalendar = () => {
                 <Form.Group controlId="formEmployee">
                   <Form.Label>Assigned To</Form.Label>
                   <Form.Select
-                    name="employee"
-                    value={formData.employee}
+                    name="assignedTo"
+                    value={formData.assignedTo}
                     onChange={handleInputChange}
                     required
                   >
                     <option value="">Select Employee</option>
                     {employees.map(emp => (
-                      <option key={emp.id} value={emp.id}>{emp.name}</option>
+                      <option key={emp._id} value={emp._id}>{emp.name}</option>
                     ))}
                   </Form.Select>
                 </Form.Group>
@@ -354,11 +385,11 @@ const TaskManagementCalendar = () => {
             <Row className="mb-3">
               <Col md={6}>
                 <Form.Group controlId="formStart">
-                  <Form.Label>Start Date & Time</Form.Label>
+                  <Form.Label>Start Date</Form.Label>
                   <Form.Control
-                    type="datetime-local"
+                    type="date"
                     name="start"
-                    value={moment(formData.start).format('YYYY-MM-DDTHH:mm')}
+                    value={moment(formData.start).format('YYYY-MM-DD')}
                     onChange={handleInputChange}
                     required
                   />
@@ -366,11 +397,11 @@ const TaskManagementCalendar = () => {
               </Col>
               <Col md={6}>
                 <Form.Group controlId="formEnd">
-                  <Form.Label>End Date & Time</Form.Label>
+                  <Form.Label>End Date</Form.Label>
                   <Form.Control
-                    type="datetime-local"
+                    type="date"
                     name="end"
-                    value={moment(formData.end).format('YYYY-MM-DDTHH:mm')}
+                    value={moment(formData.end).format('YYYY-MM-DD')}
                     onChange={handleInputChange}
                     required
                   />
@@ -387,8 +418,8 @@ const TaskManagementCalendar = () => {
                   name="status"
                   type="radio"
                   id="status-pending"
-                  value="pending"
-                  checked={formData.status === 'pending'}
+                  value="Pending"
+                  checked={formData.status === 'Pending'}
                   onChange={handleInputChange}
                 />
                 <Form.Check
@@ -397,8 +428,8 @@ const TaskManagementCalendar = () => {
                   name="status"
                   type="radio"
                   id="status-in-progress"
-                  value="in-progress"
-                  checked={formData.status === 'in-progress'}
+                  value="In Progress"
+                  checked={formData.status === 'In Progress'}
                   onChange={handleInputChange}
                 />
                 <Form.Check
@@ -407,8 +438,8 @@ const TaskManagementCalendar = () => {
                   name="status"
                   type="radio"
                   id="status-completed"
-                  value="completed"
-                  checked={formData.status === 'completed'}
+                  value="Completed"
+                  checked={formData.status === 'Completed'}
                   onChange={handleInputChange}
                 />
               </div>

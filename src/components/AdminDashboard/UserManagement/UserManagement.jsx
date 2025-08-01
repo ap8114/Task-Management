@@ -1,128 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table, Button, Modal, Form, Badge, Dropdown } from 'react-bootstrap';
+import axiosInstance from '../../../Utilities/axiosInstance';
 
 const UserManagement = () => {
-  // Sample initial data
-const initialUsers = [
-  {
-    id: 1,
-    name: 'Angela Hongo',
-    email: 'angela.hongo@example.com',
-    role: 'Office Manager',
-    permissions: {
-      canView: true,
-      canEdit: true,
-      canDelete: true,
-      onlyAssignedTasks: false
-    },
-    assignedTasks: ['Scheduling', 'Client Coordination']
-  },
-  {
-    id: 2,
-    name: 'Mary White',
-    email: 'mary.white@example.com',
-    role: 'Staff Accountant',
-    permissions: {
-      canView: true,
-      canEdit: true,
-      canDelete: false,
-      onlyAssignedTasks: true
-    },
-    assignedTasks: ['Tax Filing', 'Ledger Management']
-  },
-  {
-    id: 3,
-    name: 'James Bass',
-    email: 'james.bass@example.com',
-    role: 'Staff Bookkeeper',
-    permissions: {
-      canView: true,
-      canEdit: true,
-      canDelete: false,
-      onlyAssignedTasks: true
-    },
-    assignedTasks: ['Daily Transactions', 'Bank Reconciliation']
-  },
-  {
-    id: 4,
-    name: 'Theresa Brizzi',
-    email: 'theresa.brizzi@example.com',
-    role: 'Staff Accountant',
-    permissions: {
-      canView: true,
-      canEdit: true,
-      canDelete: false,
-      onlyAssignedTasks: true
-    },
-    assignedTasks: ['Payroll', 'Financial Statements']
-  },
-  {
-    id: 5,
-    name: 'Irene NDang',
-    email: 'irene.ndang@example.com',
-    role: 'Staff CPA',
-    permissions: {
-      canView: true,
-      canEdit: true,
-      canDelete: true,
-      onlyAssignedTasks: false
-    },
-    assignedTasks: ['Client Audits', 'Tax Planning']
-  },
-  {
-    id: 6,
-    name: 'Desiray Owens',
-    email: 'desiray.owens@example.com',
-    role: 'Student Intern',
-    permissions: {
-      canView: true,
-      canEdit: false,
-      canDelete: false,
-      onlyAssignedTasks: true
-    },
-    assignedTasks: ['Document Filing', 'Data Entry']
-  },
-  {
-    id: 7,
-    name: 'Lyniah Chappel',
-    email: 'lyniah.chappel@example.com',
-    role: 'Student Intern',
-    permissions: {
-      canView: true,
-      canEdit: false,
-      canDelete: false,
-      onlyAssignedTasks: true
-    },
-    assignedTasks: ['Research Tasks', 'Support Staff']
-  },
-  {
-    id: 8,
-    name: 'Additional Staff #1',
-    email: 'staff1@example.com',
-    role: 'Support Staff',
-    permissions: {
-      canView: true,
-      canEdit: false,
-      canDelete: false,
-      onlyAssignedTasks: true
-    },
-    assignedTasks: ['Assisting Team']
-  },
-  {
-    id: 9,
-    name: 'Additional Staff #2',
-    email: 'staff2@example.com',
-    role: 'Support Staff',
-    permissions: {
-      canView: true,
-      canEdit: false,
-      canDelete: false,
-      onlyAssignedTasks: true
-    },
-    assignedTasks: ['Filing', 'Support']
-  }
-];
-
+  const [users, setUsers] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [filterRole, setFilterRole] = useState('All');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const allTasks = [
     'Dashboard Redesign',
@@ -133,12 +21,23 @@ const initialUsers = [
     'API Integration'
   ];
 
-  const [users, setUsers] = useState(initialUsers);
-  const [showModal, setShowModal] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [filterRole, setFilterRole] = useState('All');
-  const [searchTerm, setSearchTerm] = useState('');
+  // Fetch users from API
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const res = await axiosInstance.get("user/getAllUsers");
+      setUsers(res?.data?.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Failed to fetch data", error);
+      setError("Failed to fetch users. Please try again later.");
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const handleClose = () => {
     setShowModal(false);
@@ -148,15 +47,15 @@ const initialUsers = [
   const handleShowAdd = () => {
     setIsEditMode(false);
     setCurrentUser({
-      id: users.length + 1,
       name: '',
       email: '',
       role: 'Viewer',
+      password: '', // Initialize password as empty string
       permissions: {
-        canView: true,
-        canEdit: false,
-        canDelete: false,
-        onlyAssignedTasks: false
+        can_view: true,
+        can_edit: false,
+        can_delete: false,
+        only_assigned_tasks: false
       },
       assignedTasks: []
     });
@@ -165,7 +64,12 @@ const initialUsers = [
 
   const handleShowEdit = (user) => {
     setIsEditMode(true);
-    setCurrentUser(JSON.parse(JSON.stringify(user)));
+    // Don't include password in edit mode for security reasons
+    const userToEdit = {
+      ...user,
+      password: '' // Reset password field in edit mode
+    };
+    setCurrentUser(userToEdit);
     setShowModal(true);
   };
 
@@ -199,27 +103,57 @@ const initialUsers = [
     });
   };
 
-  const handleSave = () => {
-    if (isEditMode) {
-      setUsers(users.map(user => user.id === currentUser.id ? currentUser : user));
-    } else {
-      setUsers([...users, currentUser]);
+  const handleSave = async () => {
+    try {
+      if (isEditMode) {
+        // For edit, only send password if it's been changed
+        const userToUpdate = { ...currentUser };
+        if (!userToUpdate.password) {
+          delete userToUpdate.password; // Remove password field if empty
+        }
+        
+        await axiosInstance.patch(`user/updateUser/${currentUser.id}`, userToUpdate);
+        setUsers(users.map(user => user.id === currentUser.id ? currentUser : user));
+      } else {
+        // For add, require password
+        if (!currentUser.password) {
+          setError("Password is required for new users");
+          return;
+        }
+        
+        const response = await axiosInstance.post("user/addUser", currentUser);
+        setUsers([...users, response.data]);
+      }
+      handleClose();
+      setError(null);
+    } catch (error) {
+      console.error("Failed to save user", error);
+      setError("Failed to save user. Please try again.");
     }
-    handleClose();
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
-      setUsers(users.filter(user => user.id !== id));
+      try {
+        await axiosInstance.delete(`user/deleteUser/${id}`);
+        setUsers(users.filter(user => user.id !== id));
+      } catch (error) {
+        console.error("Failed to delete user", error);
+        setError("Failed to delete user. Please try again.");
+      }
     }
   };
 
+  // Filter users based on role and search term
   const filteredUsers = users.filter(user => {
     const matchesRole = filterRole === 'All' || user.role === filterRole;
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = user?.name?.toLowerCase()?.includes(searchTerm?.toLowerCase()) ||
+      user?.email?.toLowerCase()?.includes(searchTerm?.toLowerCase());
     return matchesRole && matchesSearch;
   });
+
+  if (loading) return <div>Loading users...</div>;
+  if (error) return <div className="text-danger">{error}</div>;
 
   return (
     <Container fluid className="py-4">
@@ -234,7 +168,6 @@ const initialUsers = [
           </Button>
         </Col>
       </Row>
-
 
       <Card className="mb-4">
         <Card.Body>
@@ -259,16 +192,21 @@ const initialUsers = [
                 <option value="Admin">Admin</option>
                 <option value="Editor">Editor</option>
                 <option value="Viewer">Viewer</option>
+                <option value="Office Manager">Office Manager</option>
+                <option value="Staff Accountant">Staff Accountant</option>
+                <option value="Staff Bookkeeper">Staff Bookkeeper</option>
+                <option value="Staff CPA">Staff CPA</option>
+                <option value="Student Intern">Student Intern</option>
+                <option value="Support Staff">Support Staff</option>
               </Form.Select>
             </Col>
 
             <Col xs={12} sm={6} md={3} className="text-md-end">
               <Badge bg="" text="dark" className="p-2 w-100 w-md-auto d-block text-center text-md-end">
-                Total Users: {filteredUsers.length}
+                Total Users: {users?.length}
               </Badge>
             </Col>
           </Row>
-
 
           <div className="table-responsive">
             <Table striped bordered hover>
@@ -283,34 +221,36 @@ const initialUsers = [
                 </tr>
               </thead>
               <tbody>
-                {filteredUsers.map(user => (
-                  <tr key={user.id}>
-                    <td>{user.name}</td>
-                    <td>{user.email}</td>
+                {filteredUsers?.map(user => (
+                  <tr key={user?.id}>
+                    <td>{user?.name}</td>
+                    <td>{user?.email}</td>
                     <td>
                       <Badge bg={
-                        user.role === 'Admin' ? 'danger' :
-                          user.role === 'Editor' ? 'warning' : 'info'
+                        user?.role === 'Admin' ? 'danger' :
+                        user?.role === 'Editor' ? 'warning' : 
+                        user?.role === 'Office Manager' ? 'primary' :
+                        user?.role === 'Staff CPA' ? 'info' : 'secondary'
                       }>
-                        {user.role}
+                        {user?.role}
                       </Badge>
                     </td>
                     <td>
                       <div className="d-flex flex-wrap gap-2">
-                        {user.permissions.canView && <Badge bg="success">View</Badge>}
-                        {user.permissions.canEdit && <Badge bg="primary">Edit</Badge>}
-                        {user.permissions.canDelete && <Badge bg="danger">Delete</Badge>}
-                        {user.permissions.onlyAssignedTasks && <Badge bg="secondary">Assigned Only</Badge>}
+                        {user?.permissions.can_view && <Badge bg="success">View</Badge>}
+                        {user?.permissions.can_edit && <Badge bg="primary">Edit</Badge>}
+                        {user?.permissions.can_delete && <Badge bg="danger">Delete</Badge>}
+                        {user?.permissions.only_assigned_tasks && <Badge bg="secondary">Assigned Only</Badge>}
                       </div>
                     </td>
                     <td>
                       <Dropdown>
                         <Dropdown.Toggle variant="light" size="sm">
-                          {user.assignedTasks.length} tasks
+                          {user?.assignedTasks?.length || 0} tasks
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
-                          {user.assignedTasks.length > 0 ? (
-                            user.assignedTasks.map(task => (
+                          {user?.assignedTasks?.length > 0 ? (
+                            user?.assignedTasks.map(task => (
                               <Dropdown.Item key={task}>{task}</Dropdown.Item>
                             ))
                           ) : (
@@ -338,7 +278,7 @@ const initialUsers = [
                     </td>
                   </tr>
                 ))}
-                {filteredUsers.length === 0 && (
+                {filteredUsers?.length === 0 && (
                   <tr>
                     <td colSpan="6" className="text-center text-muted py-4">
                       No users found
@@ -369,6 +309,7 @@ const initialUsers = [
                       value={currentUser.name}
                       onChange={handleInputChange}
                       placeholder="Enter full name"
+                      required
                     />
                   </Form.Group>
                 </Col>
@@ -381,6 +322,7 @@ const initialUsers = [
                       value={currentUser.email}
                       onChange={handleInputChange}
                       placeholder="Enter email"
+                      required
                     />
                   </Form.Group>
                 </Col>
@@ -388,16 +330,41 @@ const initialUsers = [
 
               <Row className="mb-3">
                 <Col md={6}>
+                  <Form.Group controlId="formPassword">
+                    <Form.Label>Password</Form.Label>
+                    <Form.Control
+                      type="password"
+                      name="password"
+                      value={currentUser.password}
+                      onChange={handleInputChange}
+                      placeholder={isEditMode ? "Leave blank to keep current" : "Enter password"}
+                      required={!isEditMode}
+                    />
+                    {isEditMode && (
+                      <Form.Text className="text-muted">
+                        Leave password blank to keep current password
+                      </Form.Text>
+                    )}
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
                   <Form.Group controlId="formRole">
                     <Form.Label>Role</Form.Label>
                     <Form.Select
                       name="role"
                       value={currentUser.role}
                       onChange={handleInputChange}
+                      required
                     >
                       <option value="Admin">Admin</option>
                       <option value="Editor">Editor</option>
                       <option value="Viewer">Viewer</option>
+                      <option value="Office Manager">Office Manager</option>
+                      <option value="Staff Accountant">Staff Accountant</option>
+                      <option value="Staff Bookkeeper">Staff Bookkeeper</option>
+                      <option value="Staff CPA">Staff CPA</option>
+                      <option value="Student Intern">Student Intern</option>
+                      <option value="Support Staff">Support Staff</option>
                     </Form.Select>
                   </Form.Group>
                 </Col>
@@ -409,37 +376,37 @@ const initialUsers = [
                   <div className="border p-3 rounded">
                     <Form.Check
                       type="checkbox"
-                      id="canView"
+                      id="can_view"
                       label="Can View"
-                      name="canView"
-                      checked={currentUser.permissions.canView}
+                      name="can_view"
+                      checked={currentUser.permissions.can_view}
                       onChange={handlePermissionChange}
                       className="mb-2"
                     />
                     <Form.Check
                       type="checkbox"
-                      id="canEdit"
+                      id="can_edit"
                       label="Can Edit"
-                      name="canEdit"
-                      checked={currentUser.permissions.canEdit}
+                      name="can_edit"
+                      checked={currentUser.permissions.can_edit}
                       onChange={handlePermissionChange}
                       className="mb-2"
                     />
                     <Form.Check
                       type="checkbox"
-                      id="canDelete"
+                      id="can_delete"
                       label="Can Delete"
-                      name="canDelete"
-                      checked={currentUser.permissions.canDelete}
+                      name="can_delete"
+                      checked={currentUser.permissions.can_delete}
                       onChange={handlePermissionChange}
                       className="mb-2"
                     />
                     <Form.Check
                       type="checkbox"
-                      id="onlyAssignedTasks"
+                      id="only_assigned_tasks"
                       label="Only Assigned Tasks"
-                      name="onlyAssignedTasks"
-                      checked={currentUser.permissions.onlyAssignedTasks}
+                      name="only_assigned_tasks"
+                      checked={currentUser.permissions.only_assigned_tasks}
                       onChange={handlePermissionChange}
                     />
                   </div>
