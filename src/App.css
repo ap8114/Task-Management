@@ -1090,3 +1090,33 @@ select.form-input {
 .react-datepicker__input-container input {
   width: 100% !important;
 }
+
+
+/* calendar */
+
+/* Responsive wrapper for calendar */
+.calendar-responsive-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Make modal full width on mobile */
+@media (max-width: 576px) {
+  .modal-dialog {
+    max-width: 98vw !important;
+    margin: 0.5rem auto;
+  }
+  .modal-content {
+    border-radius: 0.5rem;
+  }
+  .calendar-responsive-wrapper {
+    min-width: 320px;
+  }
+  .rbc-calendar {
+    font-size: 13px;
+  }
+  .rbc-toolbar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

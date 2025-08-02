@@ -241,19 +241,15 @@ import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./Sidebar.css";
 
-const Sidebar = ({ collapsed }) => {
+const Sidebar = ({ collapsed, setCollapsed }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const role = localStorage.getItem("userRole");
 
-  const toggleSubmenu = (menuName) => {
-    setOpenSubmenu((prev) => (prev === menuName ? null : menuName));
-  };
-
   const isActive = (path) => location.pathname === path;
   const menuItemClick = () => console.log("Menu item clicked");
+  const isMobile = () => window.innerWidth < 768;
 
-  // Centralized menu configuration
   const menuConfig = {
     Admin: [
       { path: "/admin-dashboard", icon: "fa-solid fa-gauge", text: "Dashboard" },
@@ -291,6 +287,7 @@ const Sidebar = ({ collapsed }) => {
                 onClick={() => {
                   navigate(item.path);
                   menuItemClick();
+                  if (isMobile() && setCollapsed) setCollapsed(true);
                 }}
               >
                 <i className={item.icon}></i>
