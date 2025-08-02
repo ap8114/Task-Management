@@ -10,7 +10,7 @@ const MainLayout = ({ isSidebarCollapsed, toggleSidebar, menusidebarcollaps }) =
     <>
       <Navbar toggleSidebar={toggleSidebar} />
       <div className="main-content">
-        <Sidebar collapsed={isSidebarCollapsed} menuItemClick={menusidebarcollaps} />
+        <Sidebar collapsed={isSidebarCollapsed} setCollapsed={toggleSidebar} menuItemClick={menusidebarcollaps} />
         <div className={`right-side-content ${isSidebarCollapsed ? "collapsed" : ""}`}>
           <Outlet /> {/* Dashboard and inner routes render here */}
         </div>

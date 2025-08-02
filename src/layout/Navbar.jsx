@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 
 const Navbar = ({ toggleSidebar }) => {
@@ -9,15 +9,36 @@ const Navbar = ({ toggleSidebar }) => {
   const [breakStartTime, setBreakStartTime] = useState(null);
   const [totalBreakUsed, setTotalBreakUsed] = useState(0);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const profileRef = useRef(null);
   const [role, setRole] = useState("");
   useEffect(() => {
     const userRole = localStorage.getItem("userRole");
     setRole(userRole);
   }, []);
 
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(event.target)
+      ) {
+        setShowProfileDropdown(false);
+      }
+    }
+    if (showProfileDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showProfileDropdown]);
+
   return (
     <>
-      <nav className="navbar navbar-expand-lg navbar-light   py-2" style={{backgroundColor:"#c6dbf8"}}>
+      <nav className="navbar navbar-expand-lg navbar-light   py-2" style={{backgroundColor:"#c6dbf8",zIndex: 1000}}>
         <div className="container-fluid px-2 px-md-3">
           {/* Brand and Sidebar Toggle */}
           <div className="d-flex align-items-center gap-3 flex-shrink-0">
@@ -46,7 +67,7 @@ const Navbar = ({ toggleSidebar }) => {
 
             {/* Notification Bell - Hidden on mobile */}
             {/* Profile Dropdown */}
-            <div className="dropdown">
+            <div className="dropdown" ref={profileRef}>
               <button
                 className="btn btn-link text-black p-2 d-flex align-items-center"
                 style={{
@@ -74,7 +95,8 @@ const Navbar = ({ toggleSidebar }) => {
                     position: 'absolute',
                     inset: '0px auto auto 0px',
                     margin: '0px',
-                    transform: 'translate(-160px, 40px)'
+                    transform: 'translate(-160px, 40px)',
+                    zIndex: 1200
                   }}
                 >
                   <li>
