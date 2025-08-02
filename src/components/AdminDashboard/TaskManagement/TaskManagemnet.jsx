@@ -16,6 +16,30 @@ const TaskManagement = () => {
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterPriority, setFilterPriority] = useState('All');
 
+  // Service options
+  const taxServices = [
+    'Personal Tax Preparation',
+    'Corporate Tax Preparation',
+    'Tax Problem Resolution/Offer & Compromise',
+    'Penalty Abatement',
+    'Federal/State Representation'
+  ];
+
+  const accountingServices = [
+    'Marked Financial Statements',
+    'Quickbooks Financial Statements',
+    'Payroll',
+    'Sales Tax',
+    'Initial QB Setup: Chart of Accounts & GL',
+    'Audit Services'
+  ];
+
+  const consultingServices = [
+    'Business Strategy Consulting',
+    'Financial Planning',
+    'Tax Strategy Consulting'
+  ];
+
   // Form data
   const [taskForm, setTaskForm] = useState({
     title: '',
@@ -24,7 +48,9 @@ const TaskManagement = () => {
     assignedTo: '',
     dueDate: '',
     priority: 'Medium',
-    taskType: '',
+    taxService: '',
+    accountingService: '',
+    consultingService: '',
     invoiceAmount: ''
   });
 
@@ -63,7 +89,9 @@ const TaskManagement = () => {
       assignedTo: '',
       dueDate: '',
       priority: 'Medium',
-      taskType: '',
+      taxService: '',
+      accountingService: '',
+      consultingService: '',
       invoiceAmount: ''
     });
     setCurrentTask(null);
@@ -95,19 +123,38 @@ const TaskManagement = () => {
       assignedTo: task.assignedTo?.id || task.assignedTo || '',
       dueDate: task.dueDate ? task.dueDate.split('T')[0] : '',
       priority: task.priority || 'Medium',
-      taskType: task.taskType || '',
+      taxService: task.taxService || '',
+      accountingService: task.accountingService || '',
+      consultingService: task.consultingService || '',
       invoiceAmount: task.invoiceAmount || ''
     });
     setShowTaskModal(true);
   };
 
   const handleSaveTask = async () => {
-    const { title, description, status, priority, assignedTo, dueDate, taskType, invoiceAmount } = taskForm;
+    const { 
+      title, 
+      description, 
+      status, 
+      priority, 
+      assignedTo, 
+      dueDate, 
+      taxService,
+      accountingService,
+      consultingService,
+      invoiceAmount 
+    } = taskForm;
 
-    if (!title || !assignedTo || !taskType) {
-      showAlert('error', 'Validation Error', 'Title, Task Type and Assigned To are required!');
+    if (!title || !assignedTo || (!taxService && !accountingService && !consultingService)) {
+      showAlert('error', 'Validation Error', 'Title, Assigned To and at least one service are required!');
       return;
     }
+
+    // Determine which service was selected
+    const taskType = taxService || accountingService || consultingService;
+    const serviceCategory = taxService ? 'Tax Services' : 
+                          accountingService ? 'Accounting Services' : 
+                          'Consulting Services';
 
     const payload = {
       title,
@@ -115,7 +162,11 @@ const TaskManagement = () => {
       status,
       priority,
       assignedTo: parseInt(assignedTo),
+      serviceCategory,
       taskType,
+      taxService,
+      accountingService,
+      consultingService,
       invoiceAmount: parseFloat(invoiceAmount) || 0,
       dueDate: dueDate ? `${dueDate}T00:00:00.000Z` : null
     };
@@ -137,9 +188,8 @@ const TaskManagement = () => {
       }
       
       setShowTaskModal(false);
-
       resetTaskForm();
-        fetchTasks();
+      fetchTasks();
     } catch (error) {
       console.error("Error:", error);
       showAlert('error', 'Error', 'Server error. Please try again.');
@@ -339,7 +389,7 @@ const TaskManagement = () => {
                   <thead>
                     <tr>
                       <th>Title</th>
-                      <th>Task Type</th>
+                      <th>Service Type</th>
                       <th>Description</th>
                       <th>Assigned To</th>
                       <th>Due Date</th>
@@ -354,7 +404,11 @@ const TaskManagement = () => {
                       filteredTasks.map(task => (
                         <tr key={task?.id}>
                           <td>{task?.title || 'N/A'}</td>
-                          <td>{task?.taskType || 'N/A'}</td>
+                          <td>
+                            {task?.taxService || 
+                             task?.accountingService || 
+                             task?.consultingService || 'N/A'}
+                          </td>
                           <td>{task?.description || 'N/A'}</td>
                           <td>{getUserName(task?.assignedTo)}</td>
                           <td>{task?.dueDate ? task?.dueDate.split('T')[0] : 'N/A'}</td>
@@ -431,29 +485,50 @@ const TaskManagement = () => {
                 <Row className="mb-3">
                   <Col md={6}>
                     <Form.Group>
-                      <Form.Label>Task Type</Form.Label>
+                      <Form.Label>Tax Services</Form.Label>
                       <Form.Select
-                        name="taskType"
-                        value={taskForm.taskType}
+                        name="taxService"
+                        value={taskForm.taxService}
                         onChange={handleTaskFormChange}
-                        required
                       >
-                        <option value="">Select Task Type</option>
-                        <optgroup label="Tax Services">
-                          <option value="Personal Tax Preparation">Personal Tax Preparation</option>
-                          <option value="Corporate Tax Preparation">Corporate Tax Preparation</option>
-                          <option value="Tax Problem Resolution">Tax Problem Resolution / Offer & Compromise</option>
-                          <option value="Penalty Abatement">Penalty Abatement</option>
-                          <option value="Federal State Representation">Federal/State Representation</option>
-                        </optgroup>
-                        <optgroup label="Bookkeeping / Accounting Services">
-                          <option value="Marked Financial Statements">Marked Financial Statements</option>
-                          <option value="Quickbooks Financial Statements">Quickbooks Financial Statements</option>
-                          <option value="Payroll">Payroll</option>
-                          <option value="Sales Tax">Sales Tax</option>
-                          <option value="Initial QB Setup">Initial QB Setup: Chart of Accounts & GL</option>
-                          <option value="Audit Services">Audit Services</option>
-                        </optgroup>
+                        <option value="">Select Tax Service</option>
+                        {taxServices.map(service => (
+                          <option key={service} value={service}>{service}</option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label>Accounting Services</Form.Label>
+                      <Form.Select
+                        name="accountingService"
+                        value={taskForm.accountingService}
+                        onChange={handleTaskFormChange}
+                      >
+                        <option value="">Select Accounting Service</option>
+                        {accountingServices.map(service => (
+                          <option key={service} value={service}>{service}</option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                <Row className="mb-3">
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label>Consulting Services</Form.Label>
+                      <Form.Select
+                        name="consultingService"
+                        value={taskForm.consultingService}
+                        onChange={handleTaskFormChange}
+                      >
+                        <option value="">Select Consulting Service</option>
+                        {consultingServices.map(service => (
+                          <option key={service} value={service}>{service}</option>
+                        ))}
                       </Form.Select>
                     </Form.Group>
                   </Col>

@@ -39,6 +39,11 @@ const Dashboard = () => {
             'Sales Tax',
             'Initial QB Setup: Chart of Accounts & GL',
             'Audit Services'
+        ],
+        'Consulting Services': [
+            'Business Consulting',
+            'Financial Planning',
+            'Tax Strategy'
         ]
     };
 
@@ -59,22 +64,26 @@ const Dashboard = () => {
                 
                 // Fetch employees first
                 const employeesResponse = await axiosInstance.get('/user/getAllUsers');
-                setEmployees(employeesResponse.data?.data || []);
+                const validEmployees = employeesResponse.data?.data?.filter(emp => emp.role !== 'admin') || [];
+                setEmployees(validEmployees);
                 
                 // Then fetch dashboard data
                 const response = await axiosInstance.get('/dashboard/getDashboardData');
                 
                 // Process tasks to ensure they have required fields
-                const processedTasks = (response.data.data?.tasks || []).map(task => ({
-                    ...task,
-                    id: task._id || Math.random().toString(),
-                    title: task.title || 'Untitled Task',
-                    taskType: task.taskType || 'Uncategorized',
-                    assignedToName: task.assignedToName || 'Unassigned',
-                    status: task.status || 'Pending',
-                    invoiceAmount: task.invoiceAmount || 0,
-                    dueDate: task.dueDate || null
-                }));
+                const processedTasks = (response.data.data?.tasks || []).map(task => {
+                    const assignedEmployee = validEmployees.find(emp => emp._id === task.assignedTo);
+                    return {
+                        ...task,
+                        id: task._id || Math.random().toString(),
+                        title: task.title || 'Untitled Task',
+                        taskType: task.taskType || 'Uncategorized',
+                        assignedToName: task?.assignedToName || 'Unassigned',
+                        status: task.status || 'Pending',
+                        invoiceAmount: task.invoiceAmount || 0,
+                        dueDate: task.dueDate || null
+                    };
+                });
                 
                 setDashboardData({
                     totalTasks: response.data.data?.totalTasks || 0,
@@ -120,6 +129,8 @@ const Dashboard = () => {
         }
     };
 
+
+    
     // Filter tasks based on current filters
     const filterTasks = () => {
         let filtered = [...dashboardData.tasks];
@@ -133,12 +144,19 @@ const Dashboard = () => {
 
         // Filter by task type
         if (filters.taskType !== 'all') {
-            filtered = filtered.filter(task => 
-                taskTypeCategories[filters.taskType]?.includes(task.taskType)
-            );
+            filtered = filtered.filter(task => {
+                if (filters.taskType === 'Tax Services') {
+                    return taskTypeCategories['Tax Services'].includes(task.taskType);
+                } else if (filters.taskType === 'Accounting Services') {
+                    return taskTypeCategories['Accounting Services'].includes(task.taskType);
+                } else if (filters.taskType === 'Consulting Services') {
+                    return taskTypeCategories['Consulting Services'].includes(task.taskType);
+                }
+                return true;
+            });
         }
 
-        // Filter by date range (simplified example)
+        // Filter by date range
         const now = new Date();
         if (filters.dateRange === 'today') {
             filtered = filtered.filter(task => {
@@ -168,7 +186,7 @@ const Dashboard = () => {
     const prepareChartData = () => {
         const filteredTasks = filterTasks();
         
-        // Group tasks by category (Tax Services vs Accounting Services)
+        // Group tasks by category
         const taxServicesCount = filteredTasks.filter(task =>
             taskTypeCategories['Tax Services'].includes(task.taskType)
         ).length;
@@ -177,37 +195,54 @@ const Dashboard = () => {
             taskTypeCategories['Accounting Services'].includes(task.taskType)
         ).length;
 
+        const consultingServicesCount = filteredTasks.filter(task =>
+            taskTypeCategories['Consulting Services'].includes(task.taskType)
+        ).length;
+
         const tasksByCategory = {
-            labels: ['Tax Services', 'Accounting Services'],
+            labels: ['Tax Services', 'Accounting Services', 'Consulting Services'],
             datasets: [
                 {
                     label: 'Tasks by Category',
-                    data: [taxServicesCount, accountingServicesCount],
+                    data: [taxServicesCount, accountingServicesCount, consultingServicesCount],
                     backgroundColor: [
                         'rgba(54, 162, 235, 0.7)',
-                        'rgba(255, 99, 132, 0.7)'
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(75, 192, 192, 0.7)'
                     ],
                     borderColor: [
                         'rgba(54, 162, 235, 1)',
-                        'rgba(255, 99, 132, 1)'
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(75, 192, 192, 1)'
                     ],
                     borderWidth: 1
                 }
             ]
         };
 
-        // Completion rate (assuming completed vs not completed)
-        const completedCount = filteredTasks.filter(task => task.status === 'Completed').length;
-        const totalCount = filteredTasks.length || 1;
-        const completionRate = Math.round((completedCount / totalCount) * 100);
+        // Completion rate
+        const completedCount = filteredTasks.filter(task => task.status?.toLowerCase() === 'completed').length;
+        const inProgressCount = filteredTasks.filter(task => task.status?.toLowerCase() === 'in progress').length;
+        const pendingCount = filteredTasks.filter(task => task.status?.toLowerCase() === 'pending').length;
+        const overdueCount = filteredTasks.filter(task => task.status?.toLowerCase() === 'overdue').length;
 
-        const completionChart = {
-            labels: ['Completed', 'Incomplete'],
+        const statusDistribution = {
+            labels: ['Completed', 'In Progress', 'Pending', 'Overdue'],
             datasets: [
                 {
-                    data: [completionRate, 100 - completionRate],
-                    backgroundColor: ['#4bc0c0', '#ff6384'],
-                    hoverBackgroundColor: ['#36a2a2', '#ff4569']
+                    data: [completedCount, inProgressCount, pendingCount, overdueCount],
+                    backgroundColor: [
+                        '#4bc0c0',
+                        '#36a2eb',
+                        '#ffce56',
+                        '#ff6384'
+                    ],
+                    hoverBackgroundColor: [
+                        '#36a2a2',
+                        '#1e88e5',
+                        '#ffb74d',
+                        '#ff4569'
+                    ]
                 }
             ]
         };
@@ -216,30 +251,33 @@ const Dashboard = () => {
         const summaryData = {
             totalTasks: filteredTasks.length,
             completedToday: filteredTasks.filter(task => 
-                task.status === 'Completed' && 
+                task.status?.toLowerCase() === 'completed' && 
                 task.dueDate && 
                 new Date(task.dueDate).toDateString() === new Date().toDateString()
             ).length,
             pendingTasks: filteredTasks.filter(task => 
-                task.status === 'Pending'
+                task.status?.toLowerCase() === 'pending'
             ).length,
             overdueTasks: filteredTasks.filter(task => 
-                task.status !== 'Completed' && 
+                task.status?.toLowerCase() !== 'completed' && 
                 task.dueDate && 
                 new Date(task.dueDate) < new Date()
             ).length
         };
 
-        return { tasksByCategory, completionChart, summaryData };
+        return { tasksByCategory, statusDistribution, summaryData };
     };
 
-    const { tasksByCategory, completionChart, summaryData } = prepareChartData();
+    const { tasksByCategory, statusDistribution, summaryData } = prepareChartData();
     const filteredTasks = filterTasks();
+
+    console.log(filteredTasks, "ioj");
 
     if (loading) {
         return (
             <div className="d-flex justify-content-center align-items-center" style={{ height: '80vh' }}>
                 <Spinner animation="border" variant="primary" />
+                <span className="ms-2">Loading dashboard...</span>
             </div>
         );
     }
@@ -328,7 +366,7 @@ const Dashboard = () => {
                         <Card.Body>
                             <h6 className="text-muted mb-3">Tasks by Category</h6>
                             <div style={{ height: '300px' }}>
-                                {tasksByCategory ? (
+                                {tasksByCategory && tasksByCategory.datasets[0].data.some(val => val > 0) ? (
                                     <Bar
                                         data={tasksByCategory}
                                         options={{
@@ -336,21 +374,30 @@ const Dashboard = () => {
                                             maintainAspectRatio: false,
                                             plugins: {
                                                 legend: {
-                                                    position: 'bottom'
+                                                    display: false
+                                                },
+                                                tooltip: {
+                                                    callbacks: {
+                                                        label: function(context) {
+                                                            return `${context.dataset.label}: ${context.raw}`;
+                                                        }
+                                                    }
                                                 }
                                             },
                                             scales: {
                                                 y: {
                                                     beginAtZero: true,
                                                     ticks: {
-                                                        stepSize: 1
+                                                        precision: 0
                                                     }
                                                 }
                                             }
                                         }}
                                     />
                                 ) : (
-                                    <div className="text-muted">No category data available</div>
+                                    <div className="d-flex justify-content-center align-items-center h-100 text-muted">
+                                        No category data available
+                                    </div>
                                 )}
                             </div>
                         </Card.Body>
@@ -359,11 +406,11 @@ const Dashboard = () => {
                 <Col lg={6} md={12} className="mb-4">
                     <Card className="h-100 shadow-sm">
                         <Card.Body>
-                            <h6 className="text-muted mb-3">Completion Rate</h6>
+                            <h6 className="text-muted mb-3">Task Status Distribution</h6>
                             <div style={{ height: '300px' }}>
-                                {completionChart ? (
+                                {statusDistribution && statusDistribution.datasets[0].data.some(val => val > 0) ? (
                                     <Pie
-                                        data={completionChart}
+                                        data={statusDistribution}
                                         options={{
                                             responsive: true,
                                             maintainAspectRatio: false,
@@ -374,7 +421,11 @@ const Dashboard = () => {
                                                 tooltip: {
                                                     callbacks: {
                                                         label: function(context) {
-                                                            return `${context.label}: ${context.raw}%`;
+                                                            const label = context.label || '';
+                                                            const value = context.raw || 0;
+                                                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                                            const percentage = Math.round((value / total) * 100);
+                                                            return `${label}: ${value} (${percentage}%)`;
                                                         }
                                                     }
                                                 }
@@ -382,7 +433,9 @@ const Dashboard = () => {
                                         }}
                                     />
                                 ) : (
-                                    <div className="text-muted">No completion data available</div>
+                                    <div className="d-flex justify-content-center align-items-center h-100 text-muted">
+                                        No status data available
+                                    </div>
                                 )}
                             </div>
                         </Card.Body>
@@ -438,6 +491,7 @@ const Dashboard = () => {
                                         <option value="all">All Categories</option>
                                         <option value="Tax Services">Tax Services</option>
                                         <option value="Accounting Services">Accounting Services</option>
+                                        <option value="Consulting Services">Consulting Services</option>
                                     </Form.Select>
                                 </Form.Group>
                             </Col>
@@ -451,7 +505,7 @@ const Dashboard = () => {
                 <Card.Body>
                     <div className="d-flex justify-content-between align-items-center mb-4">
                         <h5 className="mb-0">Recent Tasks</h5>
-                        <small className="text-muted">Showing {filteredTasks.length} tasks</small>
+                        <small className="text-muted">Showing {filteredTasks.length} of {dashboardData.tasks.length} tasks</small>
                     </div>
                     <div className="table-responsive">
                         <table className="table table-hover">
@@ -472,7 +526,7 @@ const Dashboard = () => {
                                             <td>{task.title}</td>
                                             <td>{task.taskType}</td>
                                             <td>{formatCurrency(task.invoiceAmount)}</td>
-                                            <td>{task.assignedToName}</td>
+                                            <td> {task.assignedToName}</td>
                                             <td>{task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '-'}</td>
                                             <td>
                                                 <Badge bg={getStatusBadge(task.status)}>
