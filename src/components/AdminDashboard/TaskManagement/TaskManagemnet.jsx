@@ -35,9 +35,12 @@ const TaskManagement = () => {
   ];
 
   const consultingServices = [
-    'Business Strategy Consulting',
-    'Financial Planning',
-    'Tax Strategy Consulting'
+    'd_mitchell@omega-incorporated.com',
+    'a_hongo@omega-incorporated.com',
+    'm_white@omega-incorporated.com',
+    'j_bass@omega-incorporated.com',
+    't_brizzi@omega-incorporated.com',
+    'I_ndang@omega-incorporated.com',
   ];
 
   // Form data
@@ -594,7 +597,7 @@ const TaskManagement = () => {
                       >
                         <option value="">Select user</option>
                         {users.map(user => (
-                          <option key={user.id} value={user.id}>{user.name}</option>
+                          <option key={user.id} value={user.id}>{user.name} ({user.role}) </option>
                         ))}
                       </Form.Select>
                     </Form.Group>

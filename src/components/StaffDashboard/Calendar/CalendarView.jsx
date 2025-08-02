@@ -214,9 +214,9 @@ const CalendarView = () => {
           </div>
         </div>
 
-        <div className="card-body">
+        <div className="card-body table-responsive">
           {viewMode === "day" && (
-            <div>
+            <div >
               <h6 className="mb-3">{currentDate.format("dddd, MMMM D")}</h6>
               <Table striped bordered hover>
                 <thead>
@@ -304,8 +304,8 @@ const CalendarView = () => {
           )}
 
           {viewMode === "month" && (
-            <div>
-              <Table bordered>
+            <div className="table ">
+              <Table bordered >
                 <thead>
                   <tr>
                     {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
